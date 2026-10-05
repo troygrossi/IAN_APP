@@ -8,7 +8,6 @@ Add ideas freely. An item needs no detail until someone starts it.
 
 - [ ] Put `DATABASE_URL` in `.env.local` (`npm run help -- 5`), then run `npm run db:migrate`
 - [ ] Add `DATABASE_URL` in Vercel (Settings → Environment Variables) and as a GitHub secret ([DEPLOY.md](../setup/DEPLOY.md), part 3)
-- [ ] In Vercel: check the production branch is `main`. The first build came from `develop`; if it is still `develop`, every Publish (save to GitHub) changes the live site
 - [ ] Decide whether the GitHub repository should be private (it is public)
 - [ ] Decide GitHub's default branch: keep `develop` (a plain clone lands on it) or switch to `main` as DEPLOY.md says. Then make the guide match
 - [ ] Invite Ian to the GitHub repository and the Supabase organization. Check whether Vercel's free plan allows a second member

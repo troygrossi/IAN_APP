@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Follow-up: the pipeline ran, and the live branch is confirmed
+
+**Summary:** The first pipeline run passed its check job. Publishing to `develop` produced a preview build on Vercel, not a live one, which confirms Vercel builds the live site from `main`.
+
+**Why:** The entry below left both as unknowns.
+
+**What changed:** The pipeline uses the current versions of GitHub’s checkout and Node actions (the first run warned that the old ones are being retired). The "check the production branch" item was removed from the backlog.
+
+**What was rejected:** none
+
+**Checked:** The run on GitHub, Vercel’s list of builds, and `/api/health` on the live site, which still reports the earlier version. This corrects the handoff below: the publish did not change the live site.
+
+**Docs updated:** the backlog.
+
+**Handoff:** Unchanged: the database address, in three places, comes first.
+
 ## 2026-10-05 — Real sign-in, and GitHub checks after publish and deploy
 
 **Summary:** People now create an account with an email and password and sign in for real. Each person sees only their own notes. GitHub checks every publish, and after a deploy it also updates the live database and confirms the live site came up.
