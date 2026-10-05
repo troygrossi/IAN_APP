@@ -10,6 +10,7 @@ Addresses, menus and links.
 | `/pricing` | Everyone | Plans |
 | `/login`, `/signup` | Everyone | Sign in, create account |
 | `/checkout`, `/checkout/success` | Everyone | Simulated payment |
+| Any address not in this table | Signed in | Pages are private unless listed as public |
 | `/dashboard` | Signed in | Home after sign-in |
 | `/dashboard/notes` | Signed in | The example feature |
 | `/dashboard/billing` | Signed in | Current plan |
@@ -23,6 +24,8 @@ Add a row when you add a page.
 **The address names what you would bookmark, share, or press Back to.** A page, a chosen plan, a search. Everything else (an open menu, text being typed) is state inside a component.
 
 **The folder decides who can see a page.** Public pages go in `(marketing)`, signed-in pages go in `(app)`. The `(app)` layout checks the session, so a page placed there is protected without more code ([AUTH.md](AUTH.md)).
+
+**A new public page must also be added to `PUBLIC_PATHS`** in `src/lib/auth/config.ts`. Until it is, signed-out visitors are sent to sign in. This is on purpose: forgetting the list hides a page, it never exposes one.
 
 **Menus are data.** Every menu link is one line in `src/components/nav/nav-items.ts`. Do not write menu links into a header by hand.
 

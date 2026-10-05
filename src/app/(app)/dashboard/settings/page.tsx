@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-      <PlaceholderNotice>Account settings will go here once login is connected.</PlaceholderNotice>
+      <PlaceholderNotice>Changing your email or password is not built yet.</PlaceholderNotice>
       <dl className="rounded-lg border border-border bg-card p-6 text-sm">
         <dt className="text-muted-foreground">Email</dt>
         <dd>{session?.user.email}</dd>

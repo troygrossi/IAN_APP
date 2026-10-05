@@ -19,7 +19,7 @@ export default function HomePage() {
         </Link>
       </div>
       <PlaceholderNotice>
-        This is the starter. Sign-in and payment are simulated so you can click through the whole flow.
+        This is the starter. Accounts are real; payment is simulated so you can click through the whole flow.
       </PlaceholderNotice>
     </div>
   );

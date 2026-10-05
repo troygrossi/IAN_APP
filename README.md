@@ -1,11 +1,12 @@
 # Ian's App
 
-A starter web app. The structure is in place: pages, a database, and stand-ins for login and payment. The product itself comes next.
+A starter web app. The structure is in place: pages, a database, real sign-in, and a stand-in for payment. The product itself comes next.
 
 ## Start here
 
 | I want to… | Do this |
 | --- | --- |
+| Set up a brand-new computer, step by step | [ONBOARDING.md](ONBOARDING.md) |
 | Run the app for the first time | [HELP.md](HELP.md), section 1 |
 | Check that my computer is set up | `npm run doctor` |
 | Find a command, a file, or a word I don't know | `npm run help` |
@@ -35,7 +36,7 @@ Then open http://localhost:3000.
 | --- | --- |
 | Pages and menus | Real |
 | Notes, the example feature | Real once a database is connected ([HELP.md](HELP.md), section 5) |
-| Sign in | **Placeholder.** Any email signs in |
+| Sign in | Real: email and password, once a database is connected. No "forgot password" yet |
 | Payment | **Placeholder.** No money moves |
 
 ## What it is built with

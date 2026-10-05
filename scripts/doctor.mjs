@@ -17,9 +17,14 @@
  *   2. Packages        — node_modules is installed and current
  *   3. Settings        — .env.local exists and has every key .env.example has
  *   4. Database        — DATABASE_URL is set, connects, and the tables exist
- *   5. Login           — placeholder or connected
+ *   5. Login           — accounts live in the database, so it needs one
  *   6. Payments        — placeholder or connected
- *   7. Git             — on develop, connected to GitHub, and what is waiting to publish or deploy
+ *   7. Git             — installed, knows who you are, on develop, and what is waiting to publish or deploy
+ *   8. Tools           — the editor and the coding agent (optional)
+ *   9. Accounts        — GitHub, Supabase and Vercel, as far as this computer can tell
+ *
+ * A yellow or red line that a newcomer can fix ends with the step of ONBOARDING.md that
+ * explains it. `npm run check:docs` fails if a step cited here does not exist there.
  *
  * Exit code: 1 when a required check is red, else 0.
  */
@@ -70,9 +75,14 @@ function flush() {
   for (const line of current.lines) console.log(line);
 }
 
-function run(command) {
+/** Points a fix at the step of ONBOARDING.md that explains it. */
+const step = (n) => `(ONBOARDING.md step ${n})`;
+
+function run(command, { timeoutMs } = {}) {
   try {
-    return execSync(command, { cwd: ROOT, stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+    // The env settings make git fail fast instead of opening a sign-in window in the middle of a check.
+    const env = { ...process.env, GIT_TERMINAL_PROMPT: "0", GCM_INTERACTIVE: "never", GIT_SSH_COMMAND: "ssh -o BatchMode=yes" };
+    return execSync(command, { cwd: ROOT, stdio: ["ignore", "pipe", "ignore"], timeout: timeoutMs, env }).toString().trim();
   } catch {
     return null;
   }
@@ -88,7 +98,7 @@ function checkNode() {
   if (major > wantMajor || (major === wantMajor && minor >= wantMinor)) {
     ok(`Node ${process.versions.node}`, `needs ${wanted} or newer`);
   } else {
-    fail(`Node ${process.versions.node} is too old — this app needs ${wanted} or newer`, "Install the LTS version from https://nodejs.org, then run this again");
+    fail(`Node ${process.versions.node} is too old — this app needs ${wanted} or newer`, `Install the LTS version from https://nodejs.org, then run this again  ${step(5)}`);
   }
   flush();
 }
@@ -121,7 +131,7 @@ function checkSettings() {
       fs.copyFileSync(fromRoot(".env.example"), fromRoot(".env.local"));
       ok("Created .env.local from .env.example");
     } else {
-      warn("There is no .env.local yet — the app runs, but nothing that needs a secret will work", "npm run doctor -- --fix   (copies .env.example for you)");
+      warn("There is no .env.local yet — the app runs, but nothing that needs a secret will work", `npm run doctor -- --fix   (copies .env.example for you)  ${step(10)}`);
       flush();
       return {};
     }
@@ -144,8 +154,11 @@ function checkSettings() {
 async function checkDatabase(local) {
   begin(4, "Database");
   const url = local.DATABASE_URL;
+  let connected = false;
   if (!url) {
-    warn("DATABASE_URL is empty — pages load, but saving data says \"database is not connected yet\"", "npm run help -- 5   (how to connect Supabase)");
+    warn("DATABASE_URL is empty — pages load, but saving data says \"database is not connected yet\"", `Paste the database address into .env.local  ${step(11)}`);
+    flush();
+    return false;
   } else if (!/^postgres(ql)?:\/\//.test(url)) {
     fail("DATABASE_URL does not look like a Postgres address (it should start with postgresql://)", "npm run help -- 5   (where to copy it from)");
   } else if (quiet) {
@@ -156,24 +169,27 @@ async function checkDatabase(local) {
     const { default: postgres } = await import("postgres");
     const sql = postgres(url, { max: 1, connect_timeout: 8, prepare: false, onnotice() {} });
     try {
-      const [row] = await sql`select to_regclass('public.notes') as notes, to_regclass('public.profiles') as profiles`;
+      const [row] = await sql`select to_regclass('public.users') as users, to_regclass('public.sessions') as sessions, to_regclass('public.notes') as notes`;
       ok("Connected to the database");
-      if (row.notes && row.profiles) ok("Tables exist");
+      connected = true;
+      if (row.users && row.sessions && row.notes) ok("Tables exist");
       else fail("Connected, but the tables have not been created yet", "npm run db:migrate");
     } catch (err) {
       const reason = err?.code === "28P01" ? "the password was rejected" : (err?.code ?? "no answer");
-      fail(`Could not connect to the database (${reason})`, "Check DATABASE_URL in .env.local against Supabase — npm run help -- 5");
+      fail(`Could not connect to the database (${reason})`, `Check DATABASE_URL in .env.local against Supabase  ${step(11)}`);
     } finally {
       await sql.end({ timeout: 2 }).catch(() => {});
     }
   }
   flush();
+  return connected;
 }
 
-function checkLogin(local) {
+function checkLogin(databaseConnected) {
   begin(5, "Login");
-  if (local.NEXT_PUBLIC_SUPABASE_URL && local.NEXT_PUBLIC_SUPABASE_ANON_KEY) ok("Supabase login keys are set");
-  else info("Placeholder login is in use (any email signs in). See docs/rules/AUTH.md to connect the real one.");
+  // Accounts and sessions are rows in the database (docs/rules/AUTH.md); there is nothing else to configure.
+  if (databaseConnected) ok("Sign-in is ready", "accounts are stored in the database");
+  else warn("Nobody can sign in or create an account until the database is connected", `Connect the database  ${step(11)}`);
   flush();
 }
 
@@ -191,8 +207,9 @@ function checkPayments(local) {
 
 function checkGit() {
   begin(7, "Git");
+  let github = null; // true: reached the project on GitHub, false: tried and could not, null: not tried
   if (run("git --version") === null) {
-    warn("Git is not installed — you cannot save history or deploy", "Install it from https://git-scm.com");
+    fail("Git is not installed — you cannot get, publish or deploy the project", `Install it from https://git-scm.com/download/win, then run this again  ${step(4)}`);
   } else if (run("git rev-parse --is-inside-work-tree") !== "true") {
     warn("This folder is not a git project yet", "git init -b develop");
   } else {
@@ -200,6 +217,9 @@ function checkGit() {
     const branch = run("git branch --show-current");
     if (branch === "develop") ok("On the develop branch");
     else fail(`You are on "${branch || "no branch"}" — all work happens on develop`, "git switch develop");
+
+    if (run("git config user.name") && run("git config user.email")) ok("Git knows your name and email");
+    else warn("Git does not know who you are yet, so it cannot save a version", `git config --global user.name "Your Name"   and   git config --global user.email "you@example.com"  ${step(8)}`);
 
     if (run("git ls-files --error-unmatch .env.local") !== null) {
       fail(".env.local is saved in git — its secrets would be published", "git rm --cached .env.local");
@@ -211,7 +231,8 @@ function checkGit() {
     if (!run("git remote")) {
       warn("No GitHub address yet — your work only exists on this computer", "npm run help -- 8   (first-time GitHub setup)");
     } else {
-      ok("Connected to GitHub");
+      ok("The project has a GitHub address");
+      if (!quiet) github = run("git ls-remote --heads origin develop", { timeoutMs: 15000 }) !== null;
       // Compares against what this computer last heard from GitHub; `npm run sync` refreshes that.
       const waiting = run("git rev-list --count origin/develop..HEAD");
       const behind = run("git rev-list --count HEAD..origin/develop");
@@ -225,6 +246,43 @@ function checkGit() {
     if (unsaved) info(`${unsaved.split("\n").length} file(s) changed since the last saved version`);
   }
   flush();
+  return github;
+}
+
+function checkTools() {
+  begin(8, "Tools (optional)");
+  if (run("code --version") !== null) ok("VS Code is installed");
+  else info(`VS Code (the editor) was not found. Get it from https://code.visualstudio.com  ${step(6)}`);
+  if (run("claude --version") !== null) ok("Claude Code is installed");
+  else info(`Claude Code (the coding agent) was not found. Get it from https://claude.com/claude-code  ${step(7)}`);
+  flush();
+}
+
+async function checkAccounts(github, databaseConnected) {
+  begin(9, "Accounts");
+  if (github === true) ok("GitHub: this computer can reach the project");
+  else if (github === false) warn("GitHub: could not reach the project from this computer", `Check that you accepted the invitation and are signed in — https://github.com/notifications  ${step(1)}`);
+  else info(`GitHub: not checked. Account: https://github.com/signup  ${step(1)}`);
+
+  if (databaseConnected) ok("Supabase: the database answers");
+  else info(`Supabase: not proven until the database connects. Account: https://supabase.com/dashboard  ${step(3)}`);
+
+  // An account cannot be seen from here, but the site Vercel hosts can.
+  const liveSite = JSON.parse(read("package.json")).homepage;
+  if (!liveSite) {
+    info(`Vercel: no live site address in package.json yet. Account: https://vercel.com/signup  ${step(2)}`);
+  } else if (quiet) {
+    info(`Vercel: the live site is ${liveSite}`);
+  } else {
+    try {
+      const health = await (await fetch(`${liveSite}/api/health`, { signal: AbortSignal.timeout(8000) })).json();
+      ok(`Vercel: the live site is up — ${liveSite}`, `its database is "${health.data.database}"`);
+    } catch {
+      warn(`Vercel: the live site did not answer — ${liveSite}`, "Open the project on https://vercel.com and read the newest deployment's log (docs/setup/DEPLOY.md)");
+    }
+    info(`Vercel: your own account cannot be checked from here. Sign in at https://vercel.com  ${step(2)}`);
+  }
+  flush();
 }
 
 // ---- main ------------------------------------------------------------------
@@ -232,10 +290,12 @@ function checkGit() {
 checkNode();
 checkPackages();
 const local = checkSettings();
-await checkDatabase(local);
-checkLogin(local);
+const databaseConnected = await checkDatabase(local);
+checkLogin(databaseConnected);
 checkPayments(local);
-checkGit();
+const github = checkGit();
+checkTools();
+await checkAccounts(github, databaseConnected);
 
 const reds = results.filter((r) => r.worst === "fail");
 const yellows = results.filter((r) => r.worst === "warn");
@@ -250,5 +310,5 @@ if (!quiet) {
   const tail = yellows.length > 0 ? `, ${yellows.length} with warnings (the app still runs)` : "";
   console.log(paint("green", `\n${icons.ok} ready — ${greens}/${results.length} checks green${tail}`));
   console.log(paint("bold", "  Next: npm run dev   then open http://localhost:3000"));
-  console.log(paint("dim", "  Lost? npm run help"));
+  console.log(paint("dim", "  New here? The checklist is ONBOARDING.md.  Lost? npm run help"));
 }

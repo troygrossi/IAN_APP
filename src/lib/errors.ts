@@ -5,6 +5,7 @@ export const ERROR_STATUS = {
   "bad-input": 400,
   "signed-out": 401,
   "not-found": 404,
+  "too-many-tries": 429,
   "service-down": 503,
   unexpected: 500,
 } as const;

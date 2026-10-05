@@ -21,6 +21,7 @@ Where files go and how they are named.
 | `src/lib/auth/`, `src/lib/billing/` | Login and payments | `session.ts`, `plans.ts` |
 | The top of the project, `*.cmd` | Double-click files for everyday commands. Each only starts an `npm run` command | `Start App.cmd` |
 | `scripts/` | The commands behind `npm run doctor`, `help`, `sync`, `publish`, `deploy` and `check:docs` | `doctor.mjs` |
+| `.github/workflows/` | What GitHub runs by itself after a Publish (save to GitHub) or a Deploy (deploy to Vercel) | `ci.yml` |
 | `drizzle/` | Migration files. Generated; never edited by hand | |
 | `docs/` | These documents | |
 

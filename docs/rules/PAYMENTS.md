@@ -28,14 +28,14 @@ These hold now and after Stripe is connected.
 2. Add the `stripe` package. Fill in the three `STRIPE_` variables in `.env.local`.
 3. Add each paid plan's Stripe price id to `plans.ts`.
 4. `startCheckout` in `src/lib/billing/actions.ts`: create a Stripe Checkout session and `redirect()` to its URL.
-5. `src/app/api/webhooks/stripe/route.ts`: verify the signature, then set `plan` and `stripeCustomerId` on the user's `profiles` row.
-6. `getCurrentPlan()`: read `profiles.plan` instead of the cookie.
+5. `src/app/api/webhooks/stripe/route.ts`: verify the signature, then set `plan` and `stripeCustomerId` on the user's `users` row.
+6. `getCurrentPlan()`: read `users.plan` instead of the cookie.
 7. Delete the stand-in `/checkout` page and `completeDemoCheckout`. Keep `/checkout/success`.
 8. Update this file, the doctor's Payments check, and add a decision.
 
-Real login must be connected first ([AUTH.md](AUTH.md)), because a payment has to belong to a user.
+A payment has to belong to a user. Sign-in is real now ([AUTH.md](AUTH.md)), so the `users` table is ready for it.
 
 ## Known gaps
 
 - Payments are a placeholder (see above).
-- The plan is stored in a cookie, so it is per browser and anyone can change it.
+- The plan is stored in a cookie, so it is per browser, not per account, and anyone can change it. `users.plan` exists but nothing writes it yet.

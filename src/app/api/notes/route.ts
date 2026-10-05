@@ -7,8 +7,8 @@ import { createNote, listNotes } from "@/lib/services/notes";
 
 export async function GET() {
   try {
-    await requireSession();
-    return ok(await listNotes());
+    const { user } = await requireSession();
+    return ok(await listNotes(user.id));
   } catch (err) {
     return fail(err, "GET /api/notes");
   }
@@ -16,9 +16,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireSession();
+    const { user } = await requireSession();
     const input = createNoteInput.parse(await request.json());
-    return ok(await createNote(input), 201);
+    return ok(await createNote(user.id, input), 201);
   } catch (err) {
     return fail(err, "POST /api/notes");
   }

@@ -9,7 +9,7 @@ Four folders. Each answers one question and is kept in its own way.
 | [work/](work/LOG.md) | What was done, and what is left? | The **log** is a ledger: add to the top, never rewrite. The **backlog** is a working list: delete lines when done. |
 | [setup/](setup/DEPLOY.md) | How do I get it running or online? | **Source of truth.** Rewritten in place. |
 
-Day-to-day commands are in [HELP.md](../HELP.md) at the top of the project.
+Day-to-day commands are in [HELP.md](../HELP.md) at the top of the project. The checklist for a new person on a new computer is [ONBOARDING.md](../ONBOARDING.md).
 
 ## The rules
 

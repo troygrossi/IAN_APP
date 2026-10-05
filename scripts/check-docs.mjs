@@ -110,6 +110,15 @@ for (const [file, script] of Object.entries(LAUNCHERS)) {
   }
 }
 
+// 9. Every onboarding step the scripts point at exists (ONBOARDING.md).
+const onboarding = exists("ONBOARDING.md") ? read("ONBOARDING.md") : "";
+if (!onboarding) problem("ONBOARDING.md is missing", "Restore it; the doctor points newcomers at its steps");
+for (const file of walk("scripts", /\.mjs$/)) {
+  for (const [, n] of read(file).matchAll(/step\((\d+)\)/g)) {
+    if (!new RegExp(`^### Step ${n}: `, "m").test(onboarding)) problem(`${file} points at ONBOARDING.md step ${n}, which does not exist`, "Fix the number, or add the step to ONBOARDING.md");
+  }
+}
+
 if (problems.length === 0) {
   console.log(paint("green", `${icons.ok} docs match the project — ${docs.length} documents, ${scripts.length} commands checked`));
 } else {

@@ -31,6 +31,89 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Real sign-in, and GitHub checks after publish and deploy
+
+**Summary:** People now create an account with an email and password and sign in for real. Each person sees only their own notes. GitHub checks every publish, and after a deploy it also updates the live database and confirms the live site came up.
+
+**Why:** Troy asked for a real, light, secure login modelled on his other app, and for a light pipeline that applies database changes and deploys.
+
+**What changed:**
+- **Login** ([AUTH.md](../rules/AUTH.md), [decision 05](../decisions/05-own-login.md)): `users` and `sessions` tables; passwords hashed with scrypt; a random session secret in a locked-down cookie with only its fingerprint stored; sign-out deletes the session; five wrong passwords pause an account for 15 minutes; one answer for "no account" and "wrong password".
+- **Notes belong to a user.** `notes.userId`, and every notes query filters by it.
+- **The proxy** now protects every page not listed as public (`isProtectedPath()`, which had been left as a `TODO(human)`; Claude wrote it), and refuses a data-changing API request that comes from another site.
+- **The first migration was regenerated.** `drizzle/0000_initial.sql` replaces the earlier first migration. That one had been published but never applied to any database, so nothing was lost. From here on, migrations are only ever added.
+- **Pipeline** ([decision 06](../decisions/06-what-github-checks.md)): `.github/workflows/ci.yml`. `/api/health` now reports which version is running, so the pipeline can tell when the new one is live.
+- **Doctor:** the Login check now says whether sign-in can work; the Database check looks for the three tables.
+- New error code `too-many-tries`. The Supabase login keys were removed from `.env.example`.
+- The backlog was rewritten with every open item, including a section of things only Troy can do.
+
+**What was rejected:** Supabase Auth, signed tokens, a password library and a login framework: see decision 05. Having the pipeline run the Vercel deploy itself: see decision 06. Storing the plan on the user now: payments are still a placeholder, so the cookie stays until Stripe is connected.
+
+**Checked:** Against a throwaway Postgres on this computer, with the app running, in a browser:
+- Created an account, landed on the dashboard, added a note, signed out.
+- A signed-out visit to the notes page went to sign-in and, after signing in, came back to the notes page.
+- A wrong password showed one message, kept the email, and emptied the password box.
+- A second account saw no notes. The same email in different capitals was refused as already existing. A 5-character password was refused by the server, not only by the browser.
+- The sixth attempt after five wrong passwords was refused for 15 minutes, even with the right password.
+- After sign-out the `sessions` table was empty, and the API answered 401.
+- The cookie cannot be read by page scripts. No password appears in the server log. The database holds `scrypt$…` hashes and 64-character fingerprints.
+- A made-up cookie, a signed-out API call, and a cross-site `POST` were refused (307, 401, 403).
+- `npm run check` and `npm run build` pass.
+
+**Not checked:**
+- Nothing ran against Supabase. `DATABASE_URL` is still not set on this computer, in Vercel or on GitHub, so **sign-in does not work on the live site yet**.
+- The pipeline has never run. Its first run is this publish (the check job only). The two deploy jobs wait for the first deploy.
+- The 15-minute pause was seen to start, not to end. Session expiry after 30 days was not waited for.
+- There are no automated tests.
+
+**Docs updated:** AUTH.md (rewritten), decisions 05 and 06, a note on 02, DATABASE.md, DATA_FLOW.md, ERRORS.md, NAVIGATION.md, PAYMENTS.md, STRUCTURE.md, WORKFLOW.md, DEPLOY.md, HELP.md, README.md, ONBOARDING.md, CLAUDE.md (first line, and a new firm rule 9 about not weakening sign-in), `.env.example`, the doctor, the backlog.
+
+**Handoff:** The top section of the [backlog](BACKLOG.md) lists what only Troy can do; the database address comes first, in three places. If Vercel's production branch is `develop`, this publish has already put the new sign-in on the live site without a database; check that setting.
+
+## 2026-10-05 — Onboarding checklist, tied to the doctor
+
+**Summary:** A new person on a brand-new Windows computer has one checklist, [ONBOARDING.md](../../ONBOARDING.md), with 13 steps: three accounts, four programs, then the project. The doctor checks most of those steps and points each yellow or red line at the step that fixes it.
+
+**Why:** Troy asked for a checklist for a friend who starts with nothing installed and needs GitHub, Vercel and Supabase accounts.
+
+**What changed:**
+- New `ONBOARDING.md` at the top of the project.
+- The doctor: Git missing is now red with the download link; a new line for Git's name and email; check 8 "Tools" (VS Code, Claude Code, both optional); check 9 "Accounts" (whether this computer can reach the project on GitHub, whether the database answers, whether the live site answers).
+- `package.json` has a `homepage` field with the live site's address; the doctor reads it.
+- `npm run check:docs` fails if the doctor points at an onboarding step that does not exist.
+- HELP.md, README.md, CLAUDE.md (firm rule 5, the Doctor line), docs/README.md and DEPLOY.md point at the checklist.
+
+**What was rejected:**
+- Having the doctor install Git, Node or VS Code by itself. Installing programs on someone's computer should be their own click; the doctor gives the link and the step.
+- Checking the Vercel and Supabase accounts directly. That would need each person's login. The doctor checks what the accounts are for instead: the live site and the database.
+
+**Checked:** `npm run check` passes. The doctor was run on Troy's computer, where everything is installed, in normal and `--quiet` modes. **Not checked:** the checklist has not been followed on a new computer, so the installer screens and the GitHub sign-in window in steps 4 to 9 are described from knowledge, not from a run. The doctor's "not installed" lines for Git, VS Code and Claude Code were not seen for real.
+
+**Docs updated:** ONBOARDING.md (new), HELP.md, README.md, CLAUDE.md, docs/README.md, DEPLOY.md, the doctor, the docs check.
+
+**Handoff:** Before the friend starts, Troy invites him to the GitHub repository and the Supabase organization. Vercel's free plan may not allow a second member; check that before promising him access. The first person through the checklist should note any step that did not match what they saw.
+
+## 2026-10-05 — GitHub and Vercel connected
+
+**Summary:** The project is on GitHub (`troygrossi/IAN_APP`, branches `develop` and `main`) and Vercel builds it. The database is not connected yet.
+
+**Why:** Troy asked to get GitHub, Vercel and Supabase connected.
+
+**What changed:**
+- First Publish (save to GitHub): one version, on both branches.
+- Vercel project `ian_app`: its Framework Preset was empty, so the first build failed with "No Output Directory named public". Set to Next.js. Added `NEXT_PUBLIC_APP_URL` for the live site. Rebuilt from `main`.
+- [DEPLOY.md](../setup/DEPLOY.md): two new entries under "When a deploy fails".
+
+**What was rejected:**
+- Creating the tables through the Supabase connector. Drizzle would not know they exist, and the next `npm run db:migrate` would fail trying to create them again. The tables wait for `DATABASE_URL`, then `npm run db:migrate` creates them the normal way.
+- Copying the database password into Vercel for Troy. A person adds secrets; an agent does not handle them (firm rule 3).
+
+**Checked:** The rebuild from `main` finished. https://ianapp.vercel.app answers, and its `/api/health` reports the app as ok and the database as "not-configured". Sign-in and checkout were not clicked through on the live site. Supabase project `troygrossi's Project` exists, is healthy, and has no tables.
+
+**Docs updated:** DEPLOY.md, this log, the backlog.
+
+**Handoff:** Three things need a person, in this order. (1) Put the Supabase connection address in `.env.local` as `DATABASE_URL` (HELP.md section 5), then `npm run db:migrate`. (2) Add the same `DATABASE_URL` in Vercel under Settings → Environment Variables. (3) In Vercel, check that the production branch is `main` (Settings → Environments → Production). The first, failed build was made from `develop`, so it may be set to `develop`. The live site is https://ianapp.vercel.app and is open to anyone; Vercel's other addresses for it ask for a Vercel login.
+
 ## 2026-10-05 — Publish, Deploy, one working branch, and double-click files
 
 **Summary:** Work now moves with three commands: `npm run sync`, `npm run publish` and `npm run deploy`. Everyone stays on `develop`; `main` follows the last deploy without being checked out. Everyday commands can be double-clicked instead of typed. The documents use one word per action.

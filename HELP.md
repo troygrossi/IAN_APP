@@ -13,6 +13,8 @@ A rule for every command in this project: **when something fails, it must say wh
 
 ## 1. First time on this computer
 
+**New to all of this? Use the checklist in [ONBOARDING.md](ONBOARDING.md) instead.** It starts from a brand-new Windows computer and covers the accounts too. This section is the short version for someone who has done it before.
+
 1. Install **Node** (the LTS version) from https://nodejs.org. Node is the program that runs the app on your computer.
 2. Install **Git** from https://git-scm.com. Git keeps the history of your work.
 3. Get the project, if it is not on this computer yet. Open a terminal where you keep your projects and run this, with the address of the repository on GitHub:
@@ -26,7 +28,7 @@ If Windows shows a blue "Windows protected your PC" box, choose **More info**, t
 
 The same thing in a terminal: `npm install`, then `npm run doctor -- --fix`, then `npm run dev` and open http://localhost:3000.
 
-The app works at this point. Sign-in and payment are simulated, and saving data waits for a database (section 5).
+The pages load at this point. Signing in and saving data need a database (section 5). Payment is simulated.
 
 ## 2. Every time you sit down
 
@@ -88,7 +90,7 @@ The database is hosted by Supabase. You do this once.
 3. Open `.env.local` in this folder. Paste the address after `DATABASE_URL=` and replace `[YOUR-PASSWORD]` with your database password.
 4. Run `npm run db:migrate`. It creates the tables.
 5. Run `npm run doctor`. The Database check turns green.
-6. Restart `npm run dev`. The Notes page now saves.
+6. Restart `npm run dev`. You can now create an account, sign in, and save notes.
 
 `.env.local` holds secrets. It is never published. Do not paste its contents into a chat or a screenshot.
 
@@ -118,6 +120,8 @@ Work down this list. Stop when it is fixed.
 | What you see | What it means | What to do |
 | --- | --- | --- |
 | "The database is not connected yet" | `DATABASE_URL` is empty | Section 5 |
+| "Too many wrong passwords" | Five wrong passwords in a row pause an account for 15 minutes | Wait, or see [docs/rules/AUTH.md](docs/rules/AUTH.md) |
+| An email from GitHub says a run failed | One of the automatic checks after a publish or deploy did not pass | Open the link in the email; the last lines say what to do. See section 8 |
 | "Port 3000 is in use" | The app is already running in another terminal | Use that one, or close it |
 | A page shows "This page could not load" | The code for that page crashed | Read the terminal where `npm run dev` runs |
 | Changes to `.env.local` do nothing | Settings are read once at start | Restart `npm run dev` |
@@ -135,6 +139,8 @@ There are three words, and each is one command. The full rules are in [docs/rule
 **Publish often. Deploy when it is ready.** Publishing is your save button and your backup. Deploying is what visitors see.
 
 **You are always on `develop`.** The project has two branches (lines of versions): `develop`, where all work happens, and `main`, which the live site is built from. You never switch to `main`. The commands keep it up to date for you.
+
+**GitHub checks your work after each one.** After a publish it checks and builds the code. After a deploy it also updates the live database and confirms the live site came up. You do not start these; see them at https://github.com/troygrossi/IAN_APP/actions. A green tick means all is well.
 
 What to write after `npm run publish --`: a few plain words about what changed, in quotes. "Add a phone number to the sign-up form".
 
@@ -190,6 +196,7 @@ The documents are only useful while they are true. These four are updated **in t
 
 | When you… | Update |
 | --- | --- |
+| Change what a newcomer has to install, sign up for, or set | [ONBOARDING.md](ONBOARDING.md), and the doctor check that points at that step |
 | Finish a piece of work | Add an entry to [docs/work/LOG.md](docs/work/LOG.md) |
 | Choose between two real options | Add a file to [docs/decisions/](docs/decisions/README.md) |
 | Add or change a command | The Commands table in section 3 (`npm run check:docs` fails until you do). An everyday command also gets a double-click file |

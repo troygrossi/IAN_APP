@@ -11,6 +11,7 @@ There is one error type, `AppError`, in `src/lib/errors.ts`. It has a code and a
 | `bad-input` | What was sent is not valid | 400 |
 | `signed-out` | Sign in first | 401 |
 | `not-found` | That thing does not exist | 404 |
+| `too-many-tries` | Slow down and try again later | 429 |
 | `service-down` | Something we depend on is not available | 503 |
 | `unexpected` | A bug | 500 |
 
@@ -22,7 +23,7 @@ There is one error type, `AppError`, in `src/lib/errors.ts`. It has a code and a
 
 **Never write an empty `catch`.** If an error is ignored on purpose, the reason is a comment on the same line.
 
-**Add a code only when the screen would act differently.** Five is enough for now.
+**Add a code only when the screen would act differently.** Six is enough for now.
 
 ## On the screen
 

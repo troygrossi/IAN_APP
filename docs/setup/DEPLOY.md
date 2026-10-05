@@ -46,7 +46,17 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 5. In the Vercel project, open **Settings → Environments → Production** and check that the branch is `main`.
 6. Open the address Vercel shows. Then open `/api/health` on it; it should say the database is connected.
 
-## 3. From then on
+## 3. Give GitHub the database address (once)
+
+After a deploy, GitHub applies database changes to the live database. It needs the address to do that.
+
+1. On GitHub, open the repository, then **Settings → Secrets and variables → Actions → New repository secret**.
+2. Name: `DATABASE_URL`. Value: the same address as in your `.env.local`.
+3. Press **Add secret**. GitHub hides the value from then on, even from you.
+
+Until this is done, the "Update the live database" job fails after every deploy and says so.
+
+## 4. From then on
 
 | You want to… | Run | What happens |
 | --- | --- | --- |
@@ -54,7 +64,7 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 | Update the live site | `npm run deploy` | Deploy (deploy to Vercel). `main` moves up to `develop`, and Vercel rebuilds the live site from it. |
 
 - A new setting in `.env.local` must also be added in Vercel, under **Settings → Environment Variables**, before you deploy the code that needs it.
-- A new migration must be applied to the live database with `npm run db:migrate` before you deploy the code that needs it. While one database serves both your computer and the live site, running it once covers both.
+- A new migration is applied to the live database by GitHub after each deploy. See the runs at https://github.com/troygrossi/IAN_APP/actions.
 
 ## A second person joining
 
@@ -64,7 +74,7 @@ They get the project with one command, which also puts them on `develop`:
 git clone -b develop https://github.com/your-name/your-app.git
 ```
 
-Then [HELP.md](../../HELP.md), section 1, from step 4. They need their own `.env.local`; send them the values privately, never through GitHub.
+Their full checklist, from a brand-new computer, is [ONBOARDING.md](../../ONBOARDING.md). They need their own `.env.local`; send them the values privately, never through GitHub.
 
 ## Before real users
 
@@ -82,3 +92,5 @@ Railway is not used today ([decision 01](../decisions/01-stack.md)). It becomes 
 2. Run `npm run build` on your computer. The same error appears there, where it is easier to fix.
 3. Fix it, Publish (save to GitHub), then Deploy (deploy to Vercel) again.
 4. A deploy that builds but shows errors on the site is usually a missing environment variable in Vercel.
+5. The log ends with **No Output Directory named "public" found**: Vercel does not know this is a Next.js app. In the Vercel project, open **Settings → Build and Deployment** and set **Framework Preset** to **Next.js**. This happens when the project is created on Vercel before the code is on GitHub.
+6. The live site asks visitors to log in to Vercel: **Settings → Deployment Protection → Vercel Authentication** is on. Turn it off when the site is meant to be public.

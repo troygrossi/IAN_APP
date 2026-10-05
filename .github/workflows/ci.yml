@@ -1,0 +1,87 @@
+# What GitHub does by itself after a Publish or a Deploy (docs/rules/WORKFLOW.md, "What GitHub checks").
+#
+#   Publish (save to GitHub)   -> develop changes -> job 1
+#   Deploy (deploy to Vercel)  -> main changes    -> jobs 1, 2 and 3
+#
+# Vercel builds the live site by itself when main changes. This file does not start that build;
+# it applies database changes and then confirms the live site came up healthy.
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+
+# Two deploys in a row run one after the other, so two sets of migrations never overlap.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # 1. The same check `npm run publish` runs on your computer, plus a full build.
+  #    It exists so a change made any other way is still checked.
+  check:
+    name: Check the code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+
+  # 2. Applies new migration files in drizzle/ to the live database (docs/rules/DATABASE.md).
+  #    Needs the repository secret DATABASE_URL; see docs/setup/DEPLOY.md.
+  migrate:
+    name: Update the live database
+    if: github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply migrations
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::The DATABASE_URL secret is not set, so the live database was not updated. Add it under Settings > Secrets and variables > Actions (docs/setup/DEPLOY.md)."
+            exit 1
+          fi
+          npm run db:migrate
+
+  # 3. Waits for Vercel to finish, then asks the live site whether it is healthy.
+  #    /api/health reports which version is running, so this knows when the new one is up.
+  live-site:
+    name: Confirm the live site
+    if: github.ref == 'refs/heads/main'
+    needs: migrate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for the new version, then check it
+        run: |
+          site=$(node -p "require('./package.json').homepage")
+          want="${GITHUB_SHA::7}"
+          echo "Waiting for $site to run version $want"
+          for attempt in $(seq 1 40); do
+            health=$(curl -fsS --max-time 10 "$site/api/health" || true)
+            if echo "$health" | grep -q "\"version\":\"$want\""; then
+              echo "$health"
+              if echo "$health" | grep -q '"database":"connected"'; then
+                echo "The live site is up and its database answers."
+                exit 0
+              fi
+              echo "::error::The live site is up, but its database is not connected. Add DATABASE_URL in Vercel under Settings > Environment Variables (docs/setup/DEPLOY.md)."
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "::error::The live site did not start running version $want within 10 minutes. Open the newest deployment on vercel.com and read its build log (docs/setup/DEPLOY.md)."
+          exit 1

@@ -25,7 +25,7 @@ Each layer talks only to the one next to it.
 
 **Only services touch the database.** Nothing else imports `@/lib/db`.
 
-**Routes are thin.** A route checks the session, parses the input with its contract, calls one service function and returns. Logic belongs in the service.
+**Routes are thin.** A route checks the session, parses the input with its contract, calls one service function with the user's id, and returns. Logic belongs in the service.
 
 **Every route answers in one shape.** `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. Use `ok()` and `fail()` from `src/lib/api/response.ts`; never build the response by hand.
 
@@ -46,4 +46,4 @@ Each layer talks only to the one next to it.
 
 ## Known gaps
 
-- Notes are not tied to a user. Every signed-in person sees the same list. This is fixed when real login is connected ([AUTH.md](AUTH.md)).
+None.

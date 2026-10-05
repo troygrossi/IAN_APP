@@ -8,7 +8,7 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 (
   echo Node is not installed. Install the LTS version from https://nodejs.org
-  echo then double-click this file again.
+  echo then restart the computer and double-click this file again. See ONBOARDING.md, step 5.
   pause
   exit /b 1
 )

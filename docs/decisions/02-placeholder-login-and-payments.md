@@ -1,5 +1,7 @@
 # 02 — Placeholder login and payments
 
+> The login half of this decision was replaced by [05](05-own-login.md). The payments half still stands.
+
 | | |
 | --- | --- |
 | Decided | 2026-10-05 |

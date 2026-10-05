@@ -1,6 +1,6 @@
 # Working in this project
 
-This is a starter web app: Next.js, Postgres on Supabase, hosted on Vercel. Login and payments are placeholders. The person you are working with may be new to coding.
+This is a starter web app: Next.js, Postgres on Supabase, hosted on Vercel. Sign-in is real (email and password, `docs/rules/AUTH.md`); payments are a placeholder. The person you are working with may be new to coding.
 
 ## Start of a session
 
@@ -49,13 +49,14 @@ Short on purpose. Everything not on this list is a default you may depart from, 
    - **Work:** finished a piece of work → add an entry to the top of `docs/work/LOG.md`. Spotted something for later → one line in `docs/work/BACKLOG.md`.
    - **Decisions:** chose between real options that someone might later undo → a new numbered file in `docs/decisions/`.
    - **Help:** added or changed a command, a setup step, or where something lives → update `HELP.md`.
-   - **Doctor:** the app now depends on a new tool, setting or service → add a check to `scripts/doctor.mjs`. Every red line must name the command that fixes it.
+   - **Doctor:** the app now depends on a new tool, setting or service → add a check to `scripts/doctor.mjs`. Every red line must name the command that fixes it. If a newcomer must install or sign up for it, also add a step to `ONBOARDING.md` and point the check at it.
 6. **A changed rule changes its document.** When the way code is written here changes, edit the file in `docs/rules/` in the same change, and list what does not yet comply under **Known gaps**.
 7. **Work is not done until `npm run check` passes.** If it cannot pass, say so and say why. Do not call it done.
-8. **A placeholder says it is a placeholder,** on screen (`PlaceholderNotice`) and in the code (a `PLACEHOLDER` comment). Never present simulated login or payment as real.
-9. **Stay on `develop`, and never rewrite published history.** No force, no hard reset of published versions, no switching branches. (`docs/rules/WORKFLOW.md`)
-10. **An everyday command gets a double-click file.** Add a new one as a `.cmd` file at the top of the project that only starts its `npm run` command, with a row in `HELP.md` and `docs/rules/WORKFLOW.md`. They are `.cmd` files on purpose, not `.exe`. (`docs/rules/WORKFLOW.md`, "Double-click files")
-11. **Use the project's words.** See the table above. `npm run check:docs` enforces them in the documents; you enforce them in what you say.
+8. **A placeholder says it is a placeholder,** on screen (`PlaceholderNotice`) and in the code (a `PLACEHOLDER` comment). Never present simulated payment as real.
+9. **Do not weaken sign-in to make something work.** Passwords and session secrets are never stored, logged or sent back; private data is always filtered by the user's id. If a rule in `docs/rules/AUTH.md` is in the way, stop and ask.
+10. **Stay on `develop`, and never rewrite published history.** No force, no hard reset of published versions, no switching branches. (`docs/rules/WORKFLOW.md`)
+11. **An everyday command gets a double-click file.** Add a new one as a `.cmd` file at the top of the project that only starts its `npm run` command, with a row in `HELP.md` and `docs/rules/WORKFLOW.md`. They are `.cmd` files on purpose, not `.exe`. (`docs/rules/WORKFLOW.md`, "Double-click files")
+12. **Use the project's words.** See the table above. `npm run check:docs` enforces them in the documents; you enforce them in what you say.
 
 ## When the user and this file disagree
 

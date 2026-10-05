@@ -20,3 +20,5 @@ A choice that shapes the app and that someone might later be tempted to reverse:
 | [02](02-placeholder-login-and-payments.md) | Do we connect login and Stripe now, or simulate them? | 2026-10-05 |
 | [03](03-api-routes-and-server-actions.md) | How does the browser ask the server to do something? | 2026-10-05 |
 | [04](04-publish-and-deploy.md) | How does work get to GitHub and to the live site? | 2026-10-05 |
+| [05](05-own-login.md) | What replaces the placeholder login? | 2026-10-05 |
+| [06](06-what-github-checks.md) | What runs by itself after a publish or a deploy? | 2026-10-05 |

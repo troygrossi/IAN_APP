@@ -10,6 +10,10 @@ Tables and migrations. The database is Postgres, hosted by Supabase. The code ta
 
 **A migration that has been applied is never edited or deleted.** Fix a mistake with a new migration.
 
+**A table that holds private data has a `userId` column** that references `users.id`, and every query filters by it ([AUTH.md](AUTH.md)).
+
+**The live database is updated by GitHub, not by hand.** After a Deploy (deploy to Vercel), the pipeline in `.github/workflows/ci.yml` applies new migration files. It starts at the same moment as Vercel's build, so for a short time new code can meet the old database. Adding a table or column is safe. To remove or rename one, use two deploys: first the code that stops using it, then the migration ([decision 06](../decisions/06-what-github-checks.md)).
+
 **Read a generated migration before applying it.** If it says `DROP`, data will be deleted. Be sure that is what you meant.
 
 **Every table has** an `id` (uuid, generated) and a `createdAt` (timestamp with time zone, defaults to now).
@@ -24,8 +28,9 @@ Tables and migrations. The database is Postgres, hosted by Supabase. The code ta
 
 | Table | Holds |
 | --- | --- |
-| `profiles` | One row per person: email, plan, Stripe customer id. Nothing writes to it yet. |
-| `notes` | The example feature. Replace with the product's real tables. |
+| `users` | One row per person who can sign in: email, password hash, plan. Never the password itself ([AUTH.md](AUTH.md)) |
+| `sessions` | One row per signed-in browser. Deleting a row signs that browser out |
+| `notes` | The example feature, one user's notes. Replace with the product's real tables |
 
 ## Known gaps
 
