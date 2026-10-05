@@ -31,6 +31,38 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Sign-in security check: two holes closed, two hardenings
+
+**Summary:** Sign-in was attacked on purpose, in a browser and from the command line. Most of it held. Two real weaknesses were found and fixed, and two smaller things were tightened.
+
+**Why:** Troy asked for the login to be checked in a browser and made secure.
+
+**What changed:**
+- **Fixed: a sign-in link could send someone to another website.** `/login?next=/%09/example.com` passed the old check, because a browser drops the hidden tab and reads what is left as `//example.com`. After a real sign-in the browser landed on example.com. `safeNextPath()` now refuses spaces, control characters and anything a browser would read as another site.
+- **Fixed: a private page's output could be fetched without signing in.** With a made-up `session` cookie and an in-app navigation request, the Settings page's content came back, because only the layout checked the session and Next.js runs the page alongside it. Nothing private leaked, since no page loads data without a session yet. Every page inside `(app)` now starts with `requirePageSession()`.
+- **Tightened:** a data-changing API request whose `Origin` is `null` or unreadable crashed the proxy (an error page, still refused). It is now refused cleanly with 403.
+- **Tightened:** every response carries headers that forbid framing by other sites and type guessing, and no longer names the framework (`next.config.ts`).
+
+**What was rejected:**
+- Hiding the "Too many wrong passwords" message so a paused account cannot be told from an unknown email. The owner needs that message; it is listed under Known gaps in [AUTH.md](../rules/AUTH.md).
+- A full content security policy. It needs per-request nonces and is a piece of work of its own; in the backlog.
+
+**Checked:** Against a throwaway Postgres on this computer, with two test accounts, before and after the fixes:
+- Signed out: private pages go to sign-in; `/api/notes` answers 401; a made-up cookie gets neither.
+- Create account, sign in, sign out in the browser. Sign-out deleted the session row. The cookie is invisible to page scripts.
+- The database holds a scrypt hash and a session fingerprint, never the password or the cookie's secret. The fingerprint does not work as a cookie. An expired session is refused.
+- Account B could not see account A's notes, on the page or through the API. A note cannot be created for another user by sending a `userId`.
+- A note containing HTML is shown as text, not run.
+- Five wrong passwords paused the account; the right password was then refused for 15 minutes. Unknown email and wrong password give the same message. A too-short password is refused by the server even when the browser's own rule is removed.
+- A request from another site is refused (403) with and without a valid session, here and on the live site.
+- Twelve "next" addresses that try to leave the site; none does now.
+- `npm run check` passes.
+- **Not checked:** sign-in on the live site (it has no database yet, and test accounts are only made on this computer); the `Secure` flag on the live cookie (read in the code, not observed); how fast guessing can go from many addresses at once; the server-action path for the `/.//` look-alike (the page path was tested).
+
+**Docs updated:** [AUTH.md](../rules/AUTH.md) (the page rule, the redirect rule, the headers, two known gaps) and the backlog.
+
+**Handoff:** A new private page must start with `await requirePageSession()`. Nothing enforces it yet; the backlog has an item to make the check fail without it. These fixes are on this computer until the next Publish (save to GitHub) and Deploy (deploy to Vercel).
+
 ## 2026-10-05 — The project works from a Mac as well as Windows
 
 **Summary:** Someone on a Mac can now follow the onboarding checklist, double-click the everyday commands, and get correct advice from the doctor. Nothing changed for Windows.

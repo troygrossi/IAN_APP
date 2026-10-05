@@ -27,6 +27,9 @@ Add ideas freely. An item needs no detail until someone starts it.
 - [ ] "Forgot password", which needs a way to send email ([AUTH.md](../rules/AUTH.md), Known gaps)
 - [ ] Verify email addresses at sign-up
 - [ ] Limit sign-in attempts per visitor, not only per account
+- [ ] A full content security policy, which needs a per-request nonce ([AUTH.md](../rules/AUTH.md), Known gaps)
+- [ ] `POST /api/notes` with a body that is not JSON answers "something went wrong" (500). It should answer "bad input" (400)
+- [ ] Make `npm run check` fail when a page inside `src/app/(app)/` does not call `requirePageSession()`
 - [ ] Automated tests, starting with sign-in and "one user cannot see another's notes"
 - [ ] Let a signed-in user change their email and password, and sign out everywhere
 - [ ] Connect Stripe, and store the plan on the user instead of in a cookie ([PAYMENTS.md](../rules/PAYMENTS.md))

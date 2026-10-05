@@ -1,13 +1,15 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { findSessionUser } from "@/lib/services/sessions";
 import type { SessionUser } from "@/lib/services/users";
-import { SESSION_COOKIE } from "./config";
+import { LOGIN_PATH, SESSION_COOKIE } from "./config";
 
 // The one place the session is read (docs/rules/AUTH.md).
-// Pages call getSession(). API routes call requireSession().
+// Private pages call requirePageSession(). API routes call requireSession().
+// Public pages that only want to know call getSession().
 
 export type Session = { user: SessionUser };
 
@@ -19,6 +21,17 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const user = await findSessionUser(token);
   return user ? { user } : null;
 });
+
+/**
+ * For private pages: the session, or a trip to the sign-in page.
+ * Every page inside (app) starts with this. The layout's check alone is not enough: Next.js
+ * runs a page alongside its layout, so the page's output can be sent before the layout says no.
+ */
+export async function requirePageSession(): Promise<Session> {
+  const session = await getSession();
+  if (!session) redirect(LOGIN_PATH);
+  return session;
+}
 
 /** For API routes: the session, or a "signed-out" error that `fail()` turns into a 401. */
 export async function requireSession(): Promise<Session> {

@@ -12,7 +12,9 @@ export function proxy(request: NextRequest) {
     // Webhooks come from servers, not browsers, and prove themselves with a signature instead.
     const changesData = !["GET", "HEAD", "OPTIONS"].includes(request.method);
     const origin = request.headers.get("origin");
-    if (changesData && origin && !pathname.startsWith("/api/webhooks/") && new URL(origin).host !== request.headers.get("host")) {
+    // An Origin that cannot be read as an address (a sandboxed page sends "null") is not ours either.
+    const fromOurPages = origin !== null && URL.canParse(origin) && new URL(origin).host === request.headers.get("host");
+    if (changesData && origin && !pathname.startsWith("/api/webhooks/") && !fromOurPages) {
       return NextResponse.json(
         { ok: false, error: { code: "bad-input", message: "This request came from another site and was refused." } },
         { status: 403 },
