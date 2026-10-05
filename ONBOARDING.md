@@ -1,6 +1,8 @@
 # Onboarding
 
-A checklist that takes you from a brand-new Windows computer to the app running and your first change saved. Work from the top. Tick a box by changing `[ ]` to `[x]`, or just keep your place.
+A checklist that takes you from a brand-new Windows or Mac computer to the app running and your first change saved. Work from the top. Tick a box by changing `[ ]` to `[x]`, or just keep your place.
+
+**On a Mac:** where a step differs, it has a line that starts with "On a Mac". The double-click files end in `.command` instead of `.cmd`: wherever a step names `Doctor.cmd`, double-click `Doctor.command`.
 
 It takes about an hour, most of it waiting for installers.
 
@@ -57,6 +59,13 @@ Install these in order. For each one, download the installer, open it, and accep
 - [ ] Download from https://git-scm.com/download/win and run the installer
 - [ ] Accept the suggested options on every screen. There are many screens; the suggestions are fine
 
+On a Mac, do these instead. Git comes from Apple, and a second small program signs it in to GitHub:
+
+- [ ] Open the Terminal: press `Cmd` + `Space`, type `Terminal`, press Enter
+- [ ] Run `xcode-select --install` and choose **Install**. It takes a few minutes. If it says the tools are "already installed", that is fine
+- [ ] Download the Mac installer of the GitHub CLI from https://cli.github.com and run it
+- [ ] Close the Terminal, open it again, and run `gh auth login`. Choose **GitHub.com**, then **HTTPS**, answer **Yes** to "Authenticate Git", and choose **Login with a web browser**
+
 Done when: the doctor's Git check stops saying "Git is not installed".
 
 ### Step 5: Node
@@ -71,6 +80,8 @@ Done when: the doctor says "Node" with a green tick.
 - [ ] Download from https://code.visualstudio.com and run the installer
 - [ ] On the "Select Additional Tasks" screen, tick both **"Open with Code"** boxes. They let you right-click a folder and open it
 
+On a Mac there is no installer: open the download and drag **Visual Studio Code** into the **Applications** folder.
+
 Done when: the doctor says "VS Code is installed".
 
 ### Step 7: Claude Code
@@ -81,13 +92,13 @@ Done when: the doctor says "Claude Code is installed". If you use the Claude des
 
 ### Restart
 
-- [ ] Restart the computer. Windows only notices newly installed programs in windows opened after the install, and a restart is the simplest way to be sure
+- [ ] Restart the computer. Windows only notices newly installed programs in windows opened after the install, and a restart is the simplest way to be sure. On a Mac, closing the Terminal and opening it again is enough
 
 ## Part 3: The project
 
 ### Step 8: Tell Git who you are
 
-Git puts a name on every version you save. Open the **Start** menu, type `cmd`, press Enter, and run these two lines with your own name and the email you used for GitHub:
+Git puts a name on every version you save. Open the **Start** menu, type `cmd`, press Enter (on a Mac: open the Terminal, as in step 4), and run these two lines with your own name and the email you used for GitHub:
 
 ```
 git config --global user.name "Your Name"
@@ -107,16 +118,20 @@ cd %USERPROFILE%\Desktop
 git clone -b develop https://github.com/troygrossi/IAN_APP.git
 ```
 
-- [ ] A browser window opens and asks you to sign in to GitHub. Sign in and choose **Authorize**
+On a Mac, the first line is `cd ~/Desktop` instead. If the Mac asks whether Terminal may access your Desktop folder, choose **Allow**.
+
+- [ ] A browser window opens and asks you to sign in to GitHub. Sign in and choose **Authorize**. On a Mac this does not appear, because you signed in at step 4
 - [ ] A folder named `IAN_APP` appears on your Desktop
 
-If it says "Repository not found", you have not accepted the invitation from step 1 yet.
+If it says "Repository not found", you have not accepted the invitation from step 1 yet. If a Mac asks for a username and password here, stop with `Ctrl` + `C` and finish the `gh auth login` line in step 4 first.
 
 ### Step 10: Run the doctor
 
 - [ ] Open the `IAN_APP` folder and double-click **`Doctor.cmd`**
 
 If Windows shows a blue "Windows protected your PC" box, choose **More info**, then **Run anyway**. It appears because the file came from the internet.
+
+On a Mac, double-click **`Doctor.command`**. If the Mac says it "cannot be opened", right-click the file, choose **Open**, then **Open** again.
 
 The first run takes a minute: it installs the code the app is built on and creates your settings file, `.env.local`.
 
@@ -129,7 +144,7 @@ Done when: the last line says "ready". Yellow lines about the database are expec
 The app needs the address of the database. It contains a password, so it is never saved to GitHub; you put it in your own `.env.local`.
 
 - [ ] Get the address. Either ask Troy to send it to you privately, or copy it from Supabase: open the project, click **Connect**, and copy the **Transaction pooler** address, replacing `[YOUR-PASSWORD]` with the database password
-- [ ] In the `IAN_APP` folder, right-click `.env.local` and choose **Open with Code**
+- [ ] In the `IAN_APP` folder, right-click `.env.local` and choose **Open with Code**. On a Mac, Finder hides this file: open VS Code, choose **File**, then **Open Folder…**, pick `IAN_APP`, and click `.env.local` in the list on the left
 - [ ] Paste the address directly after `DATABASE_URL=` with no spaces, and save the file
 - [ ] Double-click **`Doctor.cmd`** again
 
@@ -171,8 +186,10 @@ From now on, the routine for every session is in [HELP.md](HELP.md), section 2. 
 
 | What you see | What to do |
 | --- | --- |
-| Double-clicking a `.cmd` file says Node is not installed | Step 5, then restart the computer |
+| Double-clicking a `.cmd` or `.command` file says Node is not installed | Step 5, then restart the computer |
 | "git is not recognized" | Step 4, then restart the computer |
+| On a Mac, a double-click file says you "do not have appropriate access privileges" | Open the Terminal and run `cd ~/Desktop/IAN_APP` and then `chmod +x *.command` |
+| On a Mac, getting the project asks for a username and password | Press `Ctrl` + `C`, then do the `gh auth login` line in step 4 |
 | "Repository not found" when getting the project | Accept the GitHub invitation from step 1 |
 | The doctor shows a red line | Do what its arrow says. It names the step here |
 | The browser shows nothing at http://localhost:3000 | Wait ten seconds and refresh. Check that the `Start App.cmd` window is still open |

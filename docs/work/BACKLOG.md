@@ -17,6 +17,7 @@ Add ideas freely. An item needs no detail until someone starts it.
 
 - [ ] Run the first Deploy (deploy to Vercel) with the database connected, and watch the three GitHub jobs pass for the first time
 - [ ] Follow ONBOARDING.md on a computer that has nothing installed, and fix any step that does not match
+- [ ] On a real Mac: follow the "On a Mac" lines of ONBOARDING.md and double-click each `.command` file. None of it has been run on a Mac yet
 - [ ] Confirm `npm run db:migrate` works through Supabase's Transaction pooler address. It has only been run against a local database; the Session pooler address may be needed
 - [ ] Write one sentence that says what the product is, and replace the placeholder text on the home page
 - [ ] Choose the app's name and set `APP_NAME` in `src/components/nav/nav-items.ts`
@@ -36,5 +37,4 @@ Add ideas freely. An item needs no detail until someone starts it.
 ## Ideas
 
 - [ ] Onboarding step 13 has the newcomer tick boxes in the shared ONBOARDING.md and Publish (save to GitHub) it. Give them something else to change if the ticks become a nuisance
-- [ ] Double-click files for Mac (`.command`), if someone on a Mac joins
 - [ ] A switch for light and dark mode

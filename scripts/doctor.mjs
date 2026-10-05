@@ -20,7 +20,7 @@
  *   5. Login           — accounts live in the database, so it needs one
  *   6. Payments        — placeholder or connected
  *   7. Git             — installed, knows who you are, on develop, and what is waiting to publish or deploy
- *   8. Tools           — the editor and the coding agent (optional)
+ *   8. Tools           — the editor and the coding agent (optional); on a Mac, that the double-click files can run
  *   9. Accounts        — GitHub, Supabase and Vercel, as far as this computer can tell
  *
  * A yellow or red line that a newcomer can fix ends with the step of ONBOARDING.md that
@@ -30,11 +30,16 @@
  */
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { ROOT, exists, fromRoot, icons, paint, read, readEnvFile } from "./lib/report.mjs";
 
 const argv = process.argv.slice(2);
 const isFix = argv.includes("--fix");
 const quiet = argv.includes("--quiet");
+// The project is worked on from Windows and from a Mac; a few checks and fixes differ between them.
+const isWindows = process.platform === "win32";
+const isMac = process.platform === "darwin";
 
 // ---- reporting -------------------------------------------------------------
 
@@ -209,7 +214,12 @@ function checkGit() {
   begin(7, "Git");
   let github = null; // true: reached the project on GitHub, false: tried and could not, null: not tried
   if (run("git --version") === null) {
-    fail("Git is not installed — you cannot get, publish or deploy the project", `Install it from https://git-scm.com/download/win, then run this again  ${step(4)}`);
+    const install = isWindows
+      ? "Install it from https://git-scm.com/download/win"
+      : isMac
+        ? "Run   xcode-select --install   in the Terminal and choose Install"
+        : "Install it from https://git-scm.com/downloads";
+    fail("Git is not installed — you cannot get, publish or deploy the project", `${install}, then run this again  ${step(4)}`);
   } else if (run("git rev-parse --is-inside-work-tree") !== "true") {
     warn("This folder is not a git project yet", "git init -b develop");
   } else {
@@ -251,16 +261,33 @@ function checkGit() {
 
 function checkTools() {
   begin(8, "Tools (optional)");
-  if (run("code --version") !== null) ok("VS Code is installed");
+  // On a Mac the `code` command only exists after an extra step inside VS Code, so look for the app too.
+  const macApp = ["/Applications", path.join(os.homedir(), "Applications")].some((dir) => fs.existsSync(path.join(dir, "Visual Studio Code.app")));
+  if (run("code --version") !== null || (isMac && macApp)) ok("VS Code is installed");
   else info(`VS Code (the editor) was not found. Get it from https://code.visualstudio.com  ${step(6)}`);
   if (run("claude --version") !== null) ok("Claude Code is installed");
   else info(`Claude Code (the coding agent) was not found. Get it from https://claude.com/claude-code  ${step(7)}`);
+
+  // A Mac refuses to run a double-click file that is not marked as runnable (docs/rules/WORKFLOW.md, "Double-click files").
+  if (isMac) {
+    const launchers = fs.readdirSync(ROOT).filter((name) => name.endsWith(".command"));
+    const blocked = launchers.filter((name) => (fs.statSync(fromRoot(name)).mode & 0o100) === 0);
+    if (blocked.length > 0 && isFix) {
+      for (const name of blocked) fs.chmodSync(fromRoot(name), 0o755);
+      ok("The double-click files were marked as runnable");
+    } else if (blocked.length > 0) {
+      warn(`These double-click files are not marked as runnable: ${blocked.join(", ")}`, "npm run doctor -- --fix   (or: chmod +x *.command)");
+    } else if (launchers.length > 0) {
+      ok("The double-click files can run");
+    }
+  }
   flush();
 }
 
 async function checkAccounts(github, databaseConnected) {
   begin(9, "Accounts");
   if (github === true) ok("GitHub: this computer can reach the project");
+  else if (github === false && isMac) warn("GitHub: could not reach the project from this computer", `Check that you accepted the invitation (https://github.com/notifications), then sign in with   gh auth login  ${step(4)}`);
   else if (github === false) warn("GitHub: could not reach the project from this computer", `Check that you accepted the invitation and are signed in — https://github.com/notifications  ${step(1)}`);
   else info(`GitHub: not checked. Account: https://github.com/signup  ${step(1)}`);
 

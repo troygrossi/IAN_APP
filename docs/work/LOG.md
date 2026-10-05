@@ -31,6 +31,32 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — The project works from a Mac as well as Windows
+
+**Summary:** Someone on a Mac can now follow the onboarding checklist, double-click the everyday commands, and get correct advice from the doctor. Nothing changed for Windows.
+
+**Why:** Ian, who will take the app over, uses a Mac. The double-click files, two doctor messages and the onboarding steps were written for Windows only.
+
+**What changed:**
+- Six Mac double-click files beside the Windows ones: `Start App.command`, `Doctor.command`, `Sync.command`, `Publish.command`, `Deploy.command`, `Help.command`. Each does what its `.cmd` twin does.
+- `.gitattributes` keeps `.command` files on Unix line endings, and git has them saved as runnable. A Mac needs both.
+- **Doctor:** the "Git is not installed" fix names the Mac command; VS Code is found on a Mac by its app, not only by the `code` command; a Mac that cannot reach GitHub is pointed at `gh auth login`; and on a Mac it checks that the double-click files are runnable (`--fix` repairs it).
+- `npm run check:docs` now expects every double-click file as a pair, and fails when a `.command` file has Windows line endings or is saved in git without its runnable mark.
+- [ONBOARDING.md](../../ONBOARDING.md): "On a Mac" lines in steps 4, 6, 8, 9, 10 and 11, the restart, and the trouble table. No step was renumbered.
+- `HELP.md`, `README.md`, [WORKFLOW.md](../rules/WORKFLOW.md) and [STRUCTURE.md](../rules/STRUCTURE.md) name both kinds of file.
+- `npm run sync`, `npm run publish`, `npm run deploy` and `npm run help` needed no change: they are Node and git, which behave the same on both.
+
+**What was rejected:**
+- One file that works on both. Windows runs `.cmd` and a Mac runs `.command`; nothing double-clicks on both.
+- A personal access token, or Git Credential Manager, for signing in to GitHub on a Mac. The GitHub CLI was chosen because it is one installer and one command with a browser sign-in. Say so if Ian already signs in another way.
+- A separate onboarding file for Mac. Two files would drift apart; the doctor points at step numbers in one.
+
+**Checked:** On Windows: `npm run check` and `npm run doctor` pass; each `.command` file passes a bash syntax check; `Help.command`, `Doctor.command`, `Sync.command`, and the "no" answer of `Deploy.command` were run under Git Bash with typed input fed in. **Not checked:** anything on a real Mac. No file was double-clicked in Finder, the Mac-only doctor lines never ran, and `Start App.command` and `Publish.command` were not run at all. Also done in this session, on a second Windows computer: the project was copied from GitHub, Node was updated from 16 to 24, and the app ran at http://localhost:3000 without a database.
+
+**Docs updated:** HELP.md, ONBOARDING.md, README.md, the doctor, check:docs, WORKFLOW.md, STRUCTURE.md and the backlog. `CLAUDE.md` still names only `.cmd` files in two places; it asks to be asked first.
+
+**Handoff:** Have Ian run the Mac lines of ONBOARDING.md and report the first step that does not match; the backlog has the item. The database address is still the first thing the app needs.
+
 ## 2026-10-05 — Follow-up: the pipeline ran, and the live branch is confirmed
 
 **Summary:** The first pipeline run passed its check job. Publishing to `develop` produced a preview build on Vercel, not a live one, which confirms Vercel builds the live site from `main`.

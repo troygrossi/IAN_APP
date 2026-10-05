@@ -18,7 +18,7 @@ A starter web app. The structure is in place: pages, a database, real sign-in, a
 
 ## Quick start
 
-On Windows, double-click **`Start App.cmd`** in this folder. It installs what is needed, starts the app and opens your browser.
+Double-click **`Start App.cmd`** in this folder on Windows, or **`Start App.command`** on a Mac. It installs what is needed, starts the app and opens your browser.
 
 Or, in a terminal:
 

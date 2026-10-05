@@ -29,24 +29,28 @@ ready for visitors   npm run deploy                        deploy to Vercel
 
 ## Double-click files
 
-Everyday commands do not need a terminal. Each has a file at the top of the project folder that you double-click in File Explorer.
+Everyday commands do not need a terminal. Each has a file at the top of the project folder that you double-click in File Explorer on Windows, or in Finder on a Mac.
 
-| Double-click | It runs | Use it to |
-| --- | --- | --- |
-| `Start App.cmd` | `npm run dev` | Start the app and open it in your browser |
-| `Doctor.cmd` | `npm run doctor -- --fix` | Check this computer and repair what can be repaired |
-| `Sync.cmd` | `npm run sync` | Sync (get the latest from GitHub) |
-| `Publish.cmd` | `npm run publish` | Publish (save to GitHub). It asks what changed |
-| `Deploy.cmd` | `npm run deploy` | Deploy (deploy to Vercel). It asks you to type yes first |
-| `Help.cmd` | `npm run help` | Read the help |
+| On Windows | On a Mac | It runs | Use it to |
+| --- | --- | --- | --- |
+| `Start App.cmd` | `Start App.command` | `npm run dev` | Start the app and open it in your browser |
+| `Doctor.cmd` | `Doctor.command` | `npm run doctor -- --fix` | Check this computer and repair what can be repaired |
+| `Sync.cmd` | `Sync.command` | `npm run sync` | Sync (get the latest from GitHub) |
+| `Publish.cmd` | `Publish.command` | `npm run publish` | Publish (save to GitHub). It asks what changed |
+| `Deploy.cmd` | `Deploy.command` | `npm run deploy` | Deploy (deploy to Vercel). It asks you to type yes first |
+| `Help.cmd` | `Help.command` | `npm run help` | Read the help |
 
-**A command a person runs often gets a double-click file.** When you add an everyday command, add its `.cmd` file, a row here and a row in [HELP.md](../../HELP.md), in the same change. Rare or risky commands, like the database ones, stay in the terminal on purpose, so they are run deliberately.
+**A command a person runs often gets a pair of double-click files.** When you add an everyday command, add its `.cmd` file and its `.command` file, a row here and a row in [HELP.md](../../HELP.md), in the same change. Rare or risky commands, like the database ones, stay in the terminal on purpose, so they are run deliberately.
+
+**The two files of a pair do the same thing.** Change one, change the other. `npm run check:docs` fails when either is missing.
 
 **A double-click file only starts its npm command.** The logic lives in `scripts/`, so the double-click file and the terminal command can never behave differently.
 
 **Every double-click file ends by waiting for a key,** so the window stays open and the result can be read.
 
-**They are `.cmd` files, not `.exe` programs.** Windows runs both on a double-click. A `.cmd` file is a few lines of readable text that is published with the project. An `.exe` would have to be rebuilt after every change, cannot be read, and is often blocked by Windows security when it arrives from the internet. These files work on Windows only; on a Mac, use the terminal commands.
+**They are `.cmd` files, not `.exe` programs.** Windows runs both on a double-click. A `.cmd` file is a few lines of readable text that is published with the project. An `.exe` would have to be rebuilt after every change, cannot be read, and is often blocked by Windows security when it arrives from the internet.
+
+**On a Mac they are `.command` files.** A `.command` file is the Mac's equivalent: a few readable lines that open in the Terminal on a double-click. A Mac only runs one that is marked as runnable and has Unix line endings. Windows shows neither, so three things keep them right: `.gitattributes` fixes the line endings, `npm run check:docs` fails when git has the file saved without the mark, and `npm run doctor -- --fix` restores the mark on a Mac. A new `.command` file made on Windows gets its mark with `git add --chmod=+x "Name.command"`.
 
 ## Branches
 
@@ -120,4 +124,5 @@ For the curious, and for agents. You do not need to type these.
 
 - `npm run deploy` has not been run against the real GitHub and Vercel yet. Publish has, and all three were run end to end against a stand-in.
 - The pipeline's deploy jobs have not run yet: no deploy has happened since it was added, and it needs the `DATABASE_URL` secret on GitHub ([DEPLOY.md](../setup/DEPLOY.md)).
+- The `.command` files were written and checked on Windows. Nobody has double-clicked one on a real Mac yet.
 - Nothing on GitHub stops a direct change to `main`. A branch protection rule would; add one if more people join.

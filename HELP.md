@@ -4,6 +4,8 @@ This is the map of working on this app. Read it here, or in the terminal with `n
 
 **You rarely need to type.** The everyday commands are files at the top of the project folder that you double-click: `Start App.cmd`, `Doctor.cmd`, `Sync.cmd`, `Publish.cmd`, `Deploy.cmd` and `Help.cmd`. Each one runs the terminal command shown next to it in section 3.
 
+**On a Mac, the same files end in `.command` instead of `.cmd`.** Wherever this page names `Doctor.cmd`, a Mac user double-clicks `Doctor.command`. Everything else is the same on both.
+
 Two commands answer most questions:
 
 - `npm run doctor` checks that this computer is ready and tells you the next command when it is not.
@@ -13,18 +15,20 @@ A rule for every command in this project: **when something fails, it must say wh
 
 ## 1. First time on this computer
 
-**New to all of this? Use the checklist in [ONBOARDING.md](ONBOARDING.md) instead.** It starts from a brand-new Windows computer and covers the accounts too. This section is the short version for someone who has done it before.
+**New to all of this? Use the checklist in [ONBOARDING.md](ONBOARDING.md) instead.** It starts from a brand-new Windows or Mac computer and covers the accounts too. This section is the short version for someone who has done it before.
 
 1. Install **Node** (the LTS version) from https://nodejs.org. Node is the program that runs the app on your computer.
-2. Install **Git** from https://git-scm.com. Git keeps the history of your work.
+2. Install **Git** from https://git-scm.com. Git keeps the history of your work. On a Mac, run `xcode-select --install` in the Terminal instead.
 3. Get the project, if it is not on this computer yet. Open a terminal where you keep your projects and run this, with the address of the repository on GitHub:
    ```
    git clone -b develop https://github.com/your-name/your-app.git
    ```
    Then open the new folder in VS Code and open a terminal there: the **Terminal** menu, then **New Terminal**.
-4. In File Explorer, double-click **`Start App.cmd`** in the project folder. The first time, it downloads the code this app is built on (a minute), creates your settings file, starts the app and opens it in your browser.
+4. In File Explorer (on a Mac: Finder), double-click **`Start App.cmd`** (on a Mac: **`Start App.command`**) in the project folder. The first time, it downloads the code this app is built on (a minute), creates your settings file, starts the app and opens it in your browser.
 
 If Windows shows a blue "Windows protected your PC" box, choose **More info**, then **Run anyway**. It appears because the file came from the internet.
+
+If a Mac says the file "cannot be opened", right-click it, choose **Open**, then **Open** again. If it says you "do not have appropriate access privileges", see section 7.
 
 The same thing in a terminal: `npm install`, then `npm run doctor -- --fix`, then `npm run dev` and open http://localhost:3000.
 
@@ -37,7 +41,7 @@ Double-click the file, or type the command. They do the same thing.
 1. **`Sync.cmd`** (`npm run sync`). Sync (get the latest from GitHub).
 2. **`Doctor.cmd`** (`npm run doctor`). Green means go. Yellow is worth reading. Red tells you the next command.
 3. **`Start App.cmd`** (`npm run dev`). The app opens at http://localhost:3000. Leave the window open; the page updates when you save a file.
-4. To stop the app, close that window. In a terminal, press `Ctrl` + `C`.
+4. To stop the app, close that window. In a terminal, press `Ctrl` + `C` (on a Mac too: the Control key, not Command).
 5. When a piece of work is finished: add an entry to [the work log](docs/work/LOG.md), then **`Publish.cmd`** (`npm run publish -- "what changed"`). Publish (save to GitHub).
 6. When it is ready for visitors: **`Deploy.cmd`** (`npm run deploy`). Deploy (deploy to Vercel).
 
@@ -45,14 +49,14 @@ Steps 5 and 6 are explained in section 8.
 
 ## 3. Commands
 
-| Command | Or double-click | What it does | When you run it |
+| Command | Or double-click (Windows / Mac) | What it does | When you run it |
 | --- | --- | --- | --- |
-| `npm run dev` | `Start App.cmd` | Starts the app on your computer at http://localhost:3000 | Every time you work |
-| `npm run sync` | `Sync.cmd` | Sync (get the latest from GitHub) | Start of every session |
-| `npm run doctor` | `Doctor.cmd` | Checks that this computer is ready. Add `-- --fix` to let it repair what it can | Start of every session, and whenever something is wrong |
-| `npm run help` | `Help.cmd` | Shows this page. Add `-- 5` or `-- database` for one section | When you are lost |
-| `npm run publish` | `Publish.cmd` | Publish (save to GitHub). Checks the code, saves a version, sends it. Add `-- "what changed"` | When a piece of work is finished |
-| `npm run deploy` | `Deploy.cmd` | Deploy (deploy to Vercel). Makes the live site match what you last published | When the work is ready for visitors |
+| `npm run dev` | `Start App.cmd` / `Start App.command` | Starts the app on your computer at http://localhost:3000 | Every time you work |
+| `npm run sync` | `Sync.cmd` / `Sync.command` | Sync (get the latest from GitHub) | Start of every session |
+| `npm run doctor` | `Doctor.cmd` / `Doctor.command` | Checks that this computer is ready. Add `-- --fix` to let it repair what it can | Start of every session, and whenever something is wrong |
+| `npm run help` | `Help.cmd` / `Help.command` | Shows this page. Add `-- 5` or `-- database` for one section | When you are lost |
+| `npm run publish` | `Publish.cmd` / `Publish.command` | Publish (save to GitHub). Checks the code, saves a version, sends it. Add `-- "what changed"` | When a piece of work is finished |
+| `npm run deploy` | `Deploy.cmd` / `Deploy.command` | Deploy (deploy to Vercel). Makes the live site match what you last published | When the work is ready for visitors |
 | `npm run check` | | Runs `lint`, `typecheck` and `check:docs` together. `publish` runs it for you | Any time you want to know the code is sound |
 | `npm run lint` | | Looks for common mistakes in the code | Part of `check` |
 | `npm run typecheck` | | Checks that the pieces of code fit together | Part of `check` |
@@ -125,6 +129,8 @@ Work down this list. Stop when it is fixed.
 | "Port 3000 is in use" | The app is already running in another terminal | Use that one, or close it |
 | A page shows "This page could not load" | The code for that page crashed | Read the terminal where `npm run dev` runs |
 | Changes to `.env.local` do nothing | Settings are read once at start | Restart `npm run dev` |
+| On a Mac, a double-click file says you "do not have appropriate access privileges" | The file lost its mark that says it may run | In a terminal in the project folder: `chmod +x *.command`. `npm run doctor -- --fix` does the same |
+| On a Mac, you cannot see `.env.local` in Finder | Finder hides files whose name starts with a dot | Open the folder in VS Code, which shows it. Or press `Cmd` + `Shift` + `.` in Finder |
 
 ## 8. Publish and deploy
 
@@ -172,7 +178,7 @@ The short list. The reasons are in [docs/rules/WORKFLOW.md](docs/rules/WORKFLOW.
 | Word | Meaning |
 | --- | --- |
 | Terminal | The window where you type commands |
-| Double-click file | A file ending in `.cmd` at the top of the project that runs a command for you |
+| Double-click file | A file at the top of the project that runs a command for you. It ends in `.cmd` on Windows and `.command` on a Mac |
 | Repository (repo) | This project folder, with its history, as git sees it |
 | Version (git calls it a commit) | One saved state of the project, with a short description |
 | Branch | A line of versions. You work on `develop`; the live site is built from `main` |
@@ -199,7 +205,7 @@ The documents are only useful while they are true. These four are updated **in t
 | Change what a newcomer has to install, sign up for, or set | [ONBOARDING.md](ONBOARDING.md), and the doctor check that points at that step |
 | Finish a piece of work | Add an entry to [docs/work/LOG.md](docs/work/LOG.md) |
 | Choose between two real options | Add a file to [docs/decisions/](docs/decisions/README.md) |
-| Add or change a command | The Commands table in section 3 (`npm run check:docs` fails until you do). An everyday command also gets a double-click file |
+| Add or change a command | The Commands table in section 3 (`npm run check:docs` fails until you do). An everyday command also gets a pair of double-click files, `.cmd` and `.command` |
 | Make the app depend on something new: a tool, a setting, a service | Add a check to `scripts/doctor.mjs` and a line to `.env.example` |
 | Change how work is published or deployed, or a word we use for it | [docs/rules/WORKFLOW.md](docs/rules/WORKFLOW.md) and `CLAUDE.md` |
 | Change how the code is supposed to be written | The matching file in [docs/rules/](docs/README.md) |

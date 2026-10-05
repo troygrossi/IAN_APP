@@ -101,12 +101,21 @@ const ignored = spawnSync("git", ["check-ignore", "CLAUDE.md", "AGENTS.md", "HEL
 if (ignored) problem(`git ignores ${ignored.split(/\s+/).join(", ")}, so a teammate would not receive it`, "Remove that line from .gitignore");
 
 // 8. Every everyday command has a double-click file (docs/rules/WORKFLOW.md, "Double-click files").
-const LAUNCHERS = { "Start App.cmd": "dev", "Doctor.cmd": "doctor", "Sync.cmd": "sync", "Publish.cmd": "publish", "Deploy.cmd": "deploy", "Help.cmd": "help" };
-for (const [file, script] of Object.entries(LAUNCHERS)) {
-  if (!exists(file)) problem(`The double-click file "${file}" is missing`, `Restore it; it should run "npm run ${script}"`);
-  else {
+// Each comes as a pair: `.cmd` for Windows and `.command` for a Mac.
+const LAUNCHERS = { "Start App": "dev", Doctor: "doctor", Sync: "sync", Publish: "publish", Deploy: "deploy", Help: "help" };
+for (const [name, script] of Object.entries(LAUNCHERS)) {
+  for (const file of [`${name}.cmd`, `${name}.command`]) {
+    if (!exists(file)) {
+      problem(`The double-click file "${file}" is missing`, `Restore it; it should run "npm run ${script}"`);
+      continue;
+    }
     if (!read(file).includes(`npm run ${script}`)) problem(`"${file}" does not run "npm run ${script}"`, "A double-click file only starts its npm command; put the logic in scripts/");
     if (!help.includes(file)) problem(`HELP.md does not mention "${file}"`, "Add it to the Commands table in HELP.md");
+    if (!file.endsWith(".command")) continue;
+    // A Mac only runs the file if git hands it over marked as runnable and with Unix line endings. Windows shows neither, so check here.
+    if (read(file).includes("\r")) problem(`"${file}" has Windows line endings, so a Mac cannot run it`, "Save it with LF line endings (.gitattributes asks git to keep them that way)");
+    const saved = spawnSync("git", ["ls-files", "--stage", "--", file], { cwd: ROOT, encoding: "utf8" });
+    if (saved.status === 0 && !saved.stdout.startsWith("100755")) problem(`"${file}" is not marked as runnable in git, so a Mac will refuse to open it`, `git add --chmod=+x "${file}"`);
   }
 }
 
