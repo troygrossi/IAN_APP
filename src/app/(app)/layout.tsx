@@ -12,7 +12,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <>
       <AppHeader email={session.user.email} />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+      {/* The extra bottom space on phones keeps content clear of the tab bar. */}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-28 sm:py-8">{children}</main>
     </>
   );
 }

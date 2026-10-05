@@ -17,7 +17,8 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 
 - `npm run check` passes.
 - `npm run build` finishes without errors.
-- The database is connected on your computer ([HELP.md](../../HELP.md), section 5).
+- The app runs on your computer with its own database ([HELP.md](../../HELP.md), section 5, "On your own computer").
+- A Supabase project exists for the live site ([HELP.md](../../HELP.md), section 5, "On Supabase"). You have its two addresses: the **Transaction pooler** and the **Session pooler**.
 
 ## 1. Connect GitHub (once)
 
@@ -40,7 +41,7 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 1. Create an account at https://vercel.com using **Continue with GitHub**.
 2. **Add New → Project**, then choose the repository.
 3. Open **Environment Variables** and add each setting from your `.env.local`:
-   - `DATABASE_URL`: the same Supabase address.
+   - `DATABASE_URL`: the Supabase **Transaction pooler** address, with your database password in it. Not the address in your `.env.local`: that one points at your own computer, which Vercel cannot reach.
    - `NEXT_PUBLIC_APP_URL`: the address Vercel gives the site, for example `https://your-app.vercel.app`.
 4. Press Vercel's **Deploy** button. This first build takes about two minutes.
 5. In the Vercel project, open **Settings → Environments → Production** and check that the branch is `main`.
@@ -51,7 +52,7 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 After a deploy, GitHub applies database changes to the live database. It needs the address to do that.
 
 1. On GitHub, open the repository, then **Settings → Secrets and variables → Actions → New repository secret**.
-2. Name: `DATABASE_URL`. Value: the same address as in your `.env.local`.
+2. Name: `DATABASE_URL`. Value: the Supabase **Session pooler** address, with your database password in it. Migrations need the Session pooler; the Transaction pooler is for the live site.
 3. Press **Add secret**. GitHub hides the value from then on, even from you.
 
 Until this is done, the "Update the live database" job fails after every deploy and says so.
@@ -64,7 +65,7 @@ Until this is done, the "Update the live database" job fails after every deploy 
 | Update the live site | `npm run deploy` | Deploy (deploy to Vercel). `main` moves up to `develop`, and Vercel rebuilds the live site from it. |
 
 - A new setting in `.env.local` must also be added in Vercel, under **Settings → Environment Variables**, before you deploy the code that needs it.
-- A new migration is applied to the live database by GitHub after each deploy. See the runs at https://github.com/troygrossi/IAN_APP/actions.
+- A new migration is applied to the live database by GitHub after each deploy. See the runs at https://github.com/Harvestthewheel/Harvest-The-Wheel/actions.
 
 ## A second person joining
 
@@ -78,7 +79,15 @@ Their full checklist, from a brand-new computer, is [ONBOARDING.md](../../ONBOAR
 
 ## Before real users
 
-The placeholders must be replaced first. See [AUTH.md](../rules/AUTH.md) and [PAYMENTS.md](../rules/PAYMENTS.md). Also create a second Supabase project so that testing never touches live data.
+The placeholders must be replaced first. See [AUTH.md](../rules/AUTH.md) and [PAYMENTS.md](../rules/PAYMENTS.md). Testing already never touches live data: your computer has its own database.
+
+## The free Supabase plan
+
+The live database runs on Supabase's free plan ([decision 09](../decisions/09-free-supabase-for-the-live-site.md)). Three things to know:
+
+- **It pauses after a week without use.** A paused database means nobody can sign in. GitHub asks it one question every day (`.github/workflows/keep-awake.yml`) so it never gets there. If it pauses anyway, open the project on https://supabase.com/dashboard and press **Restore**.
+- **There are no backups.** Fine for test accounts. Move to the Pro plan ($25 per month, daily backups) before people pay.
+- **500 MB of storage.** Far more than accounts and trades need for a long time.
 
 ## Where Railway fits
 

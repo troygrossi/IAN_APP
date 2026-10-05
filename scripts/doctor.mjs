@@ -17,6 +17,7 @@
  *   2. Packages        — node_modules is installed and current
  *   3. Settings        — .env.local exists and has every key .env.example has
  *   4. Database        — DATABASE_URL is set, connects, and the tables exist
+ *                        (--fix creates a database on this computer, and its tables)
  *   5. Login           — accounts live in the database, so it needs one
  *   6. Payments        — placeholder or connected
  *   7. Git             — installed, knows who you are, on develop, and what is waiting to publish or deploy
@@ -156,6 +157,37 @@ function checkSettings() {
   return local;
 }
 
+/** True when DATABASE_URL points at Postgres on this computer (Postgres.app) rather than at Supabase. */
+function isLocalDatabase(url) {
+  try {
+    return ["localhost", "127.0.0.1", "::1", "[::1]"].includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Postgres on this computer starts with only its own databases. --fix creates the app's one,
+ * by connecting to the built-in "postgres" database. Returns true when it created it.
+ */
+async function createLocalDatabase(url, postgres) {
+  const name = decodeURIComponent(new URL(url).pathname.slice(1));
+  const admin = new URL(url);
+  admin.pathname = "/postgres";
+  const sql = postgres(admin.toString(), { max: 1, connect_timeout: 8, prepare: false, onnotice() {} });
+  try {
+    const [found] = await sql`select 1 from pg_database where datname = ${name}`;
+    if (found) return false;
+    await sql.unsafe(`create database "${name.replaceAll('"', '""')}"`);
+    return true;
+  } finally {
+    await sql.end({ timeout: 2 }).catch(() => {});
+  }
+}
+
+const tablesQuery = (sql) =>
+  sql`select to_regclass('public.users') as users, to_regclass('public.sessions') as sessions, to_regclass('public.notes') as notes`;
+
 async function checkDatabase(local) {
   begin(4, "Database");
   const url = local.DATABASE_URL;
@@ -172,16 +204,36 @@ async function checkDatabase(local) {
     warn("Cannot test the connection until packages are installed", "npm install");
   } else {
     const { default: postgres } = await import("postgres");
+    const isLocal = isLocalDatabase(url);
+    if (isLocal && isFix) {
+      try {
+        if (await createLocalDatabase(url, postgres)) ok("Created the database on this computer");
+      } catch {
+        // Postgres is not running, most likely. The connection below says so with its fix.
+      }
+    }
     const sql = postgres(url, { max: 1, connect_timeout: 8, prepare: false, onnotice() {} });
     try {
-      const [row] = await sql`select to_regclass('public.users') as users, to_regclass('public.sessions') as sessions, to_regclass('public.notes') as notes`;
-      ok("Connected to the database");
+      let [row] = await tablesQuery(sql);
+      ok("Connected to the database", isLocal ? "Postgres on this computer (HELP.md, section 5)" : "Supabase");
       connected = true;
+      if (!(row.users && row.sessions && row.notes) && isFix) {
+        info("Creating the tables (npm run db:migrate)…");
+        execSync("npm run db:migrate", { cwd: ROOT, stdio: "inherit" });
+        [row] = await tablesQuery(sql);
+      }
       if (row.users && row.sessions && row.notes) ok("Tables exist");
       else fail("Connected, but the tables have not been created yet", "npm run db:migrate");
     } catch (err) {
-      const reason = err?.code === "28P01" ? "the password was rejected" : (err?.code ?? "no answer");
-      fail(`Could not connect to the database (${reason})`, `Check DATABASE_URL in .env.local against Supabase  ${step(11)}`);
+      if (isLocal && err?.code === "ECONNREFUSED") {
+        fail("Postgres is not running on this computer", "Open Postgres.app and press Start (HELP.md, section 5)");
+      } else if (isLocal && err?.code === "3D000") {
+        fail("Postgres is running, but the app's database does not exist yet", "npm run doctor -- --fix   (creates it for you)");
+      } else {
+        const reason = err?.code === "28P01" ? "the password was rejected" : (err?.code ?? "no answer");
+        const fix = isLocal ? "Check DATABASE_URL in .env.local (HELP.md, section 5)" : `Check DATABASE_URL in .env.local against Supabase  ${step(11)}`;
+        fail(`Could not connect to the database (${reason})`, fix);
+      }
     } finally {
       await sql.end({ timeout: 2 }).catch(() => {});
     }
@@ -284,14 +336,15 @@ function checkTools() {
   flush();
 }
 
-async function checkAccounts(github, databaseConnected) {
+async function checkAccounts(github, databaseConnected, usesLocalDatabase) {
   begin(9, "Accounts");
   if (github === true) ok("GitHub: this computer can reach the project");
   else if (github === false && isMac) warn("GitHub: could not reach the project from this computer", `Check that you accepted the invitation (https://github.com/notifications), then sign in with   gh auth login  ${step(4)}`);
   else if (github === false) warn("GitHub: could not reach the project from this computer", `Check that you accepted the invitation and are signed in — https://github.com/notifications  ${step(1)}`);
   else info(`GitHub: not checked. Account: https://github.com/signup  ${step(1)}`);
 
-  if (databaseConnected) ok("Supabase: the database answers");
+  if (usesLocalDatabase) info("Supabase: holds the live site's database, not this computer's. It is checked through the live site below (HELP.md, section 5)");
+  else if (databaseConnected) ok("Supabase: the database answers");
   else info(`Supabase: not proven until the database connects. Account: https://supabase.com/dashboard  ${step(3)}`);
 
   // An account cannot be seen from here, but the site Vercel hosts can.
@@ -322,7 +375,7 @@ checkLogin(databaseConnected);
 checkPayments(local);
 const github = checkGit();
 checkTools();
-await checkAccounts(github, databaseConnected);
+await checkAccounts(github, databaseConnected, isLocalDatabase(local.DATABASE_URL ?? ""));
 
 const reds = results.filter((r) => r.worst === "fail");
 const yellows = results.filter((r) => r.worst === "warn");

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,8 +13,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Ian’s App", template: "%s · Ian’s App" },
-  description: "A starter web app.",
+  title: { default: "Harvest the Wheel", template: "%s · Harvest the Wheel" },
+  description:
+    "Follow The Harvester's options wheel trades on the Core Four, as they happen. Learn how the wheel works. For education, not financial advice.",
+};
+
+// viewportFit "cover" lets the phone tab bar sit above the home indicator (docs/rules/UI.md).
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#131512" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -73,8 +73,9 @@ After each of your commands, GitHub runs a few jobs by itself. You do not start 
 | --- | --- | --- |
 | Publish (save to GitHub) | Checks the code and builds it | Your work is still saved. Fix it and publish again |
 | Deploy (deploy to Vercel) | The same check, then applies new database changes to the live database, then waits for Vercel and confirms the live site is running the new version with its database connected | Open the failed run; its last lines say what to do |
+| Every day, by itself | Asks the live site's database one question, so the free Supabase plan never pauses it (`.github/workflows/keep-awake.yml`, [decision 09](../decisions/09-free-supabase-for-the-live-site.md)) | Open the project on Supabase; if it says Paused, press Restore |
 
-See the runs at https://github.com/troygrossi/IAN_APP/actions. A green tick means everything passed. GitHub also emails you when a run fails.
+See the runs at https://github.com/Harvestthewheel/Harvest-The-Wheel/actions. A green tick means everything passed. GitHub also emails you when a run fails.
 
 ## Rules
 
@@ -90,7 +91,7 @@ See the runs at https://github.com/troygrossi/IAN_APP/actions. A green tick mean
 
 **Deploy only what you have looked at.** Run it and click through it with `npm run dev` before you Deploy (deploy to Vercel).
 
-**Database changes reach the live database by themselves.** `npm run db:migrate` updates the database on your computer; after `npm run deploy`, GitHub applies the same migration files to the live one ([DATABASE.md](DATABASE.md)).
+**Database changes reach the live database by themselves.** Your computer and the live site have separate databases: Postgres.app on yours, Supabase for the live site. `npm run db:migrate` updates the one on your computer; after `npm run deploy`, GitHub applies the same migration files to the live one ([DATABASE.md](DATABASE.md)).
 
 ## Good habits
 

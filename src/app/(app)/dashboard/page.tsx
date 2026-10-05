@@ -1,25 +1,86 @@
 import Link from "next/link";
-import { getSession } from "@/lib/auth/session";
-import { getCurrentPlan } from "@/lib/billing/current-plan";
+import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
+import { Disclaimer } from "@/components/wheel/disclaimer";
+import { formatUsd } from "@/lib/wheel/format";
+import { CORE_FOUR, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
+import { PositionCard } from "./position-card";
 
 export const metadata = { title: "Dashboard" };
 
-export default async function DashboardPage() {
-  const [session, plan] = await Promise.all([getSession(), getCurrentPlan()]);
+const FEATURES = [
+  {
+    title: "Every position, in the open",
+    body: "Where each Core Four stock sits in the wheel, its price, and the premium collected so far.",
+    href: "#core-four",
+  },
+  {
+    title: "An alert for every trade",
+    body: "Sold a put, got assigned, sold a call, shares called away: you see it when it happens.",
+    href: "/dashboard/alerts",
+  },
+  {
+    title: "Learn the wheel",
+    body: "How the strategy works step by step, the words it uses, and DRIP for cash that is not yet enough for 100 shares.",
+    href: "/dashboard/learn",
+  },
+] as const;
+
+export default function DashboardPage() {
+  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumThisCycleUsd, 0);
+  const openContracts = CORE_FOUR.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
+
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-      <p className="text-muted-foreground">Signed in as {session?.user.email}.</p>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link href="/dashboard/notes" className="rounded-lg border border-border bg-card p-5 hover:bg-muted">
-          <h2 className="font-semibold">Notes</h2>
-          <p className="text-sm text-muted-foreground">The example feature. It saves to the database.</p>
-        </Link>
-        <Link href="/dashboard/billing" className="rounded-lg border border-border bg-card p-5 hover:bg-muted">
-          <h2 className="font-semibold">Billing</h2>
-          <p className="text-sm text-muted-foreground">You are on the {plan.name} plan.</p>
-        </Link>
-      </div>
+    <div className="flex flex-col gap-8">
+      <section className="flex flex-col gap-4 rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8">
+        <p className="text-sm font-semibold uppercase tracking-wider opacity-80">Welcome to Harvest the Wheel</p>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Follow one trader&rsquo;s options wheel, trade by trade.</h1>
+        <p className="max-w-2xl text-base opacity-90">
+          The Harvester runs the wheel strategy on four stocks, the Core Four: MARA, RGTI, IONQ and CIFR. This app shows
+          those trades as they happen, explains why the wheel works the way it does, and keeps a running tally of the
+          premium it brings in. You watch and learn; every decision stays yours.
+        </p>
+        {/* On a phone the tab bar already links these sections, so the cards wait for a wider screen. */}
+        <ul className="hidden gap-3 sm:grid sm:grid-cols-3">
+          {FEATURES.map((feature) => (
+            <li key={feature.title}>
+              <Link href={feature.href} className="flex h-full flex-col gap-1 rounded-xl bg-card/10 p-4 hover:bg-card/20">
+                <span className="font-semibold">{feature.title}</span>
+                <span className="text-sm opacity-90">{feature.body}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="core-four" className="flex scroll-mt-24 flex-col gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">The Harvester&rsquo;s Core Four</h2>
+            <p className="text-sm text-muted-foreground">As of {SAMPLE_AS_OF}</p>
+          </div>
+          <dl className="flex gap-6 text-sm">
+            <div>
+              <dt className="text-muted-foreground">Premium this cycle</dt>
+              <dd className="text-lg font-bold text-success">{formatUsd(premiumUsd)}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Open contracts</dt>
+              <dd className="text-lg font-bold">{openContracts}</dd>
+            </div>
+          </dl>
+        </div>
+        <PlaceholderNotice>
+          These are sample positions copied from The Harvester&rsquo;s tracker on {SAMPLE_AS_OF}, not live trades. Live
+          positions appear here once trade entry is built.
+        </PlaceholderNotice>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {CORE_FOUR.map((position) => (
+            <PositionCard key={position.ticker} position={position} />
+          ))}
+        </div>
+      </section>
+
+      <Disclaimer />
     </div>
   );
 }

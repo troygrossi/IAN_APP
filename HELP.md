@@ -72,8 +72,10 @@ Steps 5 and 6 are explained in section 8.
 | You want to… | Look in |
 | --- | --- |
 | Change a page | `src/app/` — each folder is an address. `src/app/(marketing)/pricing/page.tsx` is `/pricing` |
-| Change the menus | `src/components/nav/nav-items.ts` |
-| Change the colors | `src/app/globals.css` |
+| Change the menus | `src/components/nav/nav-items.ts`. The first four sections are also the tab bar on a phone |
+| Change the colors | `src/app/globals.css`. The brand colors and what each is for are in [docs/rules/UI.md](docs/rules/UI.md) |
+| Change the logo | `src/components/brand/logo.tsx` |
+| Change the sample positions, alerts and DRIP funds | `src/lib/wheel/sample-data.ts`. They are placeholders until trade entry is built |
 | Change what the database stores | `src/lib/db/schema.ts`, then section 6 |
 | Change what the server does with data | `src/lib/services/` |
 | See an example of a whole feature | Notes: `src/app/(app)/dashboard/notes/` |
@@ -87,14 +89,30 @@ Folders in round brackets, like `(marketing)`, group pages that share a layout. 
 
 ## 5. Connecting the database
 
-The database is hosted by Supabase. You do this once.
+There are two databases, and they never share data. Your computer uses its own (Postgres.app), for building and testing. The live site uses Supabase. Why: decisions [08](docs/decisions/08-local-postgres-while-building.md) and [09](docs/decisions/09-free-supabase-for-the-live-site.md).
 
-1. Create a free account at https://supabase.com and make a **new project**. Save the database password it shows you.
-2. In the project, click **Connect** at the top. Under **Connection string**, copy the **Transaction pooler** address. It starts with `postgresql://`.
-3. Open `.env.local` in this folder. Paste the address after `DATABASE_URL=` and replace `[YOUR-PASSWORD]` with your database password.
-4. Run `npm run db:migrate`. It creates the tables.
-5. Run `npm run doctor`. The Database check turns green.
-6. Restart `npm run dev`. You can now create an account, sign in, and save notes.
+### On your own computer (Postgres.app, for building and testing)
+
+You do this once. It is free, and nothing leaves your computer.
+
+1. Download Postgres.app from https://postgresapp.com, open the download, and drag **Postgres** into **Applications**.
+2. Open Postgres from Applications. Click **Initialize**. The elephant in the menu bar means it is running.
+3. In `.env.local`, `DATABASE_URL` is `postgresql://<your Mac user name>@localhost:5432/harvest_the_wheel`. On Ian's Mac it is already filled in.
+4. Double-click **`Doctor.command`** (or run `npm run doctor -- --fix`). It creates the database and its tables.
+5. Double-click **`Start App.command`**. You can now create an account, sign in, and save notes.
+
+Postgres.app must be running whenever you use the app. If the doctor says "Postgres is not running on this computer", open Postgres.app and press **Start**. Accounts you make here exist only on your computer.
+
+### On Supabase (for the live site)
+
+You do this once. The free plan is enough to start ([decision 09](docs/decisions/09-free-supabase-for-the-live-site.md)).
+
+1. Create a free account at https://supabase.com (choose **Continue with GitHub**) and make a **new project**. Pick a region near you. Save the database password it shows you in your password manager.
+2. In the project, click **Connect** at the top. Under **Connection string**, there are two addresses you will need. Both start with `postgresql://`, and in both you replace `[YOUR-PASSWORD]` with your database password:
+   - the **Transaction pooler** address: it goes to Vercel, for the live site;
+   - the **Session pooler** address: it goes to GitHub, which uses it to create and update the tables.
+3. Do **not** put either one in `.env.local`. That file stays pointed at the database on your own computer.
+4. Put them in Vercel and GitHub: [docs/setup/DEPLOY.md](docs/setup/DEPLOY.md), parts 2 and 3. The next Deploy (deploy to Vercel) creates the tables in Supabase by itself.
 
 `.env.local` holds secrets. It is never published. Do not paste its contents into a chat or a screenshot.
 
@@ -146,9 +164,11 @@ There are three words, and each is one command. The full rules are in [docs/rule
 
 **You are always on `develop`.** The project has two branches (lines of versions): `develop`, where all work happens, and `main`, which the live site is built from. You never switch to `main`. The commands keep it up to date for you.
 
-**GitHub checks your work after each one.** After a publish it checks and builds the code. After a deploy it also updates the live database and confirms the live site came up. You do not start these; see them at https://github.com/troygrossi/IAN_APP/actions. A green tick means all is well.
+**GitHub checks your work after each one.** After a publish it checks and builds the code. After a deploy it also updates the live database and confirms the live site came up. You do not start these; see them at https://github.com/Harvestthewheel/Harvest-The-Wheel/actions. A green tick means all is well.
 
 What to write after `npm run publish --`: a few plain words about what changed, in quotes. "Add a phone number to the sign-up form".
+
+**Two GitHub addresses.** `origin` is your repository, Harvestthewheel/Harvest-The-Wheel: Sync, Publish and Deploy all use it, and Vercel watches it. `upstream` is Troy's original, troygrossi/IAN_APP, and it is read-only from here: nothing can be sent to it. To bring in a change Troy makes there, ask Claude: "bring in Troy's latest changes from upstream". Then Publish (save to GitHub) as usual. Why it is set up this way: [decision 07](docs/decisions/07-own-repository-with-upstream.md).
 
 **First time only:** the project needs an address on GitHub, and Vercel needs to be connected to it. The steps are in [docs/setup/DEPLOY.md](docs/setup/DEPLOY.md).
 

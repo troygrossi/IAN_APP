@@ -1,0 +1,30 @@
+# Keeps the live database from pausing (docs/setup/DEPLOY.md, "The free Supabase plan").
+#
+# Supabase pauses a free project after a week without use, and a paused database means nobody
+# can sign in to the live site. Once a day this asks the live site's /api/health, which runs one
+# small query against the database. It reads nothing private and changes nothing.
+# Why: docs/decisions/09-free-supabase-for-the-live-site.md
+name: Keep the database awake
+
+on:
+  schedule:
+    - cron: "17 15 * * *" # every day at 15:17 UTC (8:17 in the morning in California)
+  workflow_dispatch: # also a "Run workflow" button on the Actions page
+
+jobs:
+  ping:
+    name: Ask the live database one question
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Open /api/health on the live site
+        run: |
+          site=$(node -p "require('./package.json').homepage")
+          health=$(curl -fsS --max-time 30 "$site/api/health" || true)
+          echo "$site/api/health -> $health"
+          if echo "$health" | grep -q '"database":"connected"'; then
+            echo "The live database answered. It stays awake for another week."
+            exit 0
+          fi
+          echo "::error::The live database did not answer. Open the project on supabase.com: if it says Paused, press Restore. If the site itself did not answer, check that homepage in package.json is the live site's address (docs/setup/DEPLOY.md)."
+          exit 1

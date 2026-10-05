@@ -1,7 +1,7 @@
 {
   "name": "ian-app",
   "version": "0.1.0",
-  "homepage": "https://ianapp.vercel.app",
+  "homepage": "https://harvest-the-wheel.vercel.app",
   "private": true,
   "scripts": {
     "dev": "next dev",

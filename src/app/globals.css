@@ -1,33 +1,44 @@
 @import "tailwindcss";
 
-/* The app's colors (docs/rules/UI.md). Components use these names
+/* Harvest the Wheel colors (docs/rules/UI.md). Components use these names
    (bg-card, text-muted-foreground, ...) and never raw colors like bg-gray-100,
-   so light and dark mode both work and a rebrand is a change to this file only. */
+   so light and dark mode both work and a rebrand is a change to this file only.
+
+   The palette is a field at harvest: cream ground, deep field green for actions,
+   wheat gold for the brand mark. Text colors pass 4.5:1 on their backgrounds. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f3; /* cream */
+  --foreground: #1f2420; /* soil */
   --card: #ffffff;
-  --muted: #f4f4f5;
-  --muted-foreground: #5b5b66;
-  --border: #e4e4e7;
-  --primary: #1d4ed8;
+  --muted: #f3eee3; /* parchment */
+  --muted-foreground: #6b6458;
+  --border: #e8e2d4;
+  --primary: #2f5233; /* field green */
   --primary-foreground: #ffffff;
-  --danger: #b91c1c;
-  --success: #15803d;
+  --accent: #8f5d12; /* wheat gold, dark enough for text */
+  --accent-soft: #f6ead2;
+  --success: #2f6b3a;
+  --success-soft: #e6efe2;
+  --danger: #a23b2a;
+  --danger-soft: #f7e3df;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --card: #141416;
-    --muted: #1c1c1f;
-    --muted-foreground: #a1a1aa;
-    --border: #2a2a2e;
-    --primary: #3b82f6;
-    --primary-foreground: #0a0a0a;
-    --danger: #f87171;
-    --success: #4ade80;
+    --background: #131512;
+    --foreground: #ece8de;
+    --card: #1b1e1a;
+    --muted: #242822;
+    --muted-foreground: #a9a391;
+    --border: #33382f;
+    --primary: #93c486;
+    --primary-foreground: #131512;
+    --accent: #e3ad55;
+    --accent-soft: #3a2f1c;
+    --success: #93c486;
+    --success-soft: #22301f;
+    --danger: #f08a7a;
+    --danger-soft: #3b211d;
   }
 }
 
@@ -40,8 +51,12 @@
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-danger: var(--danger);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

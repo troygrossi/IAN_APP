@@ -1,7 +1,8 @@
 import type { ComponentProps } from "react";
 
+// min-h-11 keeps every button at least 44px tall, a comfortable target for a thumb.
 const base =
-  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants = {
   primary: "bg-primary text-primary-foreground",

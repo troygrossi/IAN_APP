@@ -4,6 +4,15 @@ What is left to do. One line per item. Delete a line when it is done; the [log](
 
 Add ideas freely. An item needs no detail until someone starts it.
 
+## Needs Ian (now that the app lives in his GitHub)
+
+These need his own accounts and passwords, so only he can do them. The steps are in `HELP.md` section 5 and [DEPLOY.md](../setup/DEPLOY.md).
+
+- [ ] Install Postgres.app, press Initialize, then double-click `Doctor.command`. `.env.local` already points at it
+- [ ] On GitHub, check the default branch of Harvestthewheel/Harvest-The-Wheel (it is `main`)
+- [ ] ONBOARDING.md steps 3 and 11 still say to ask Troy for the Supabase project and address. Rewrite them for Ian's own project
+- [ ] Before the first paying user: Supabase Pro for backups, and Vercel Pro (the free Hobby plan is for non-commercial use)
+
 ## Needs Troy (nobody else can do these)
 
 - [ ] Put `DATABASE_URL` in `.env.local` (`npm run help -- 5`), then run `npm run db:migrate`
@@ -19,8 +28,11 @@ Add ideas freely. An item needs no detail until someone starts it.
 - [ ] Follow ONBOARDING.md on a computer that has nothing installed, and fix any step that does not match
 - [ ] On a real Mac: follow the "On a Mac" lines of ONBOARDING.md and double-click each `.command` file. None of it has been run on a Mac yet
 - [ ] Confirm `npm run db:migrate` works through Supabase's Transaction pooler address. It has only been run against a local database; the Session pooler address may be needed
-- [ ] Write one sentence that says what the product is, and replace the placeholder text on the home page
-- [ ] Choose the app's name and set `APP_NAME` in `src/components/nav/nav-items.ts`
+
+- [ ] Trade entry: a table for The Harvester's trades, a service, an API route and hooks, so Positions and Alerts show real data instead of `src/lib/wheel/sample-data.ts`
+- [ ] Live prices for the Core Four and the DRIP watchlist, from a market data service
+- [ ] Send alerts by email or to a phone when a trade is entered
+- [ ] A command (and double-click file) that brings in Troy's latest changes from `upstream` ([decision 07](../decisions/07-own-repository-with-upstream.md))
 
 ## Later
 

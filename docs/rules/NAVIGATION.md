@@ -11,7 +11,10 @@ Addresses, menus and links.
 | `/login`, `/signup` | Everyone | Sign in, create account |
 | `/checkout`, `/checkout/success` | Everyone | Simulated payment |
 | Any address not in this table | Signed in | Pages are private unless listed as public |
-| `/dashboard` | Signed in | Home after sign-in |
+| `/dashboard` | Signed in | Home after sign-in: what the app is, and the Core Four positions |
+| `/dashboard/alerts` | Signed in | The Harvester's trades, newest first |
+| `/dashboard/drip` | Signed in | What DRIP means, and the DRIP watchlist |
+| `/dashboard/learn` | Signed in | How the wheel works, the rules, the words |
 | `/dashboard/notes` | Signed in | The example feature |
 | `/dashboard/billing` | Signed in | Current plan |
 | `/dashboard/settings` | Signed in | Account |
@@ -27,7 +30,7 @@ Add a row when you add a page.
 
 **A new public page must also be added to `PUBLIC_PATHS`** in `src/lib/auth/config.ts`. Until it is, signed-out visitors are sent to sign in. This is on purpose: forgetting the list hides a page, it never exposes one.
 
-**Menus are data.** Every menu link is one line in `src/components/nav/nav-items.ts`. Do not write menu links into a header by hand.
+**Menus are data.** Every menu link is one line in `src/components/nav/nav-items.ts`. Do not write menu links into a header by hand. `appNav` holds the main sections: in the header from the small breakpoint up, and as the tab bar at the bottom on a phone, so keep it to four or five short labels. `accountNav` holds the account pages.
 
 **Use `<Link>` to move between pages**, not `<a>`. It makes moving between pages instant. Use `redirect()` on the server, and `useRouter()` only when a click must run code first.
 

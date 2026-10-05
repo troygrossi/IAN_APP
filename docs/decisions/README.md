@@ -22,3 +22,6 @@ A choice that shapes the app and that someone might later be tempted to reverse:
 | [04](04-publish-and-deploy.md) | How does work get to GitHub and to the live site? | 2026-10-05 |
 | [05](05-own-login.md) | What replaces the placeholder login? | 2026-10-05 |
 | [06](06-what-github-checks.md) | What runs by itself after a publish or a deploy? | 2026-10-05 |
+| [09](09-free-supabase-for-the-live-site.md) | What does the live site's database run on, and how is it kept from pausing? | 2026-10-05 |
+| [08](08-local-postgres-while-building.md) | Where does the database live while the app is being built? | 2026-10-05 |
+| [07](07-own-repository-with-upstream.md) | Whose GitHub repository does the app live in, and how do Troy's changes come in? | 2026-10-05 |

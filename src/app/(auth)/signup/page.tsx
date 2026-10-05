@@ -12,7 +12,12 @@ export default async function SignupPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
+        <p className="text-sm text-muted-foreground">
+          Follow The Harvester&rsquo;s wheel trades on the Core Four, and learn how the strategy works.
+        </p>
+      </div>
       <AuthForm action={signUp} mode="sign-up" />
       <p className="text-sm text-muted-foreground">
         Already have an account?{" "}

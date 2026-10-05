@@ -31,6 +31,91 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — First deploy to Ian's live site
+
+**Summary:** The project points at Ian's live site, https://harvest-the-wheel.vercel.app, which uses his Supabase project (free plan). This version is the first one sent to his GitHub and deployed from it.
+
+**Why:** Ian set up Supabase and Vercel and asked to confirm the live site reaches its database.
+
+**What changed:**
+- `homepage` in `package.json` is Ian's site, so the doctor, the deploy check and the daily keep-awake job ask his site, not Troy's.
+- Set up outside the code, by Ian and Claude together: Vercel project `harvest-the-wheel` (team harvester1) with `DATABASE_URL` and `NEXT_PUBLIC_APP_URL` for Production; GitHub secret `DATABASE_URL`; both hold the Supabase pooler addresses, and Ian typed the password himself.
+- This project's git settings now sign new versions as Harvestthewheel. Vercel's free plan refuses to build a version whose author is not the account owner; the last version on GitHub was Troy's, so the first build was blocked.
+
+**What was rejected:** Pasting the database password into the chat or a file. Ian entered it in Vercel and GitHub himself.
+
+**Checked:** `npm run check` passes. Whether the live site and the migrations reach Supabase is confirmed by this deploy's pipeline run (see the next entry if it failed).
+
+**Docs updated:** backlog.
+
+**Handoff:** Ian installs Postgres.app so the app runs on his Mac too (backlog, "Needs Ian").
+
+## 2026-10-05 — The live site gets Supabase's free plan; this computer keeps its own database
+
+**Summary:** The project is ready for a live site on Supabase's free plan while Ian keeps building against Postgres.app on his Mac. The two databases never share data, and a daily job keeps the free plan from pausing.
+
+**Why:** Ian found Supabase's free plan and wants the deployed app connected now, with local Postgres for development.
+
+**What changed:**
+- `.github/workflows/keep-awake.yml`: once a day, asks the live site's `/api/health` (one database query), so Supabase never pauses the project. It also has a "Run workflow" button.
+- HELP.md section 5: two databases, and the Supabase part now says which address goes where (Transaction pooler to Vercel, Session pooler to GitHub) and to keep both out of `.env.local`.
+- DEPLOY.md: the same, plus "The free Supabase plan" (pausing, no backups, 500 MB). WORKFLOW.md: the daily job in "What GitHub checks", Ian's Actions link. DATABASE.md: the old "one database for both" gap is gone; the free plan is the new one.
+- The doctor's Accounts line now says Supabase holds the live site's database, not this computer's.
+- Decision 09, backlog.
+
+**What was rejected:** One Supabase database for both computer and live site; Supabase Pro now; no keep-awake job (decision 09). Setting up the Supabase, Vercel and GitHub accounts from here: they need Ian's own sign-in and passwords.
+
+**Checked:** `npm run check` passes. The keep-awake workflow has not run; it needs to be on `main` and needs `homepage` to be Ian's live site. Nothing was connected to Supabase or Vercel yet.
+
+**Docs updated:** HELP.md, DEPLOY.md, WORKFLOW.md, DATABASE.md, the doctor, decision 09, backlog.
+
+**Handoff:** Ian does the four "Needs Ian" account steps in the backlog, then sends the live site's address. Then: set `homepage`, Publish (save to GitHub), Deploy (deploy to Vercel). The deploy creates the tables in Supabase and checks the live site's database.
+
+## 2026-10-05 — A database on Ian's own computer
+
+**Summary:** The app can run against Postgres on Ian's Mac (Postgres.app), so sign-in works without a Supabase account. The doctor now creates that database and its tables, and says plainly when Postgres is not running.
+
+**Why:** Ian wants to test the app now and set up Supabase later, when the app is further along.
+
+**What changed:**
+- `scripts/doctor.mjs`: knows a `localhost` database from Supabase. With `--fix` it creates the database if missing and runs `npm run db:migrate` if the tables are missing. New red lines: "Postgres is not running on this computer" and "the app's database does not exist yet", each with its fix. The Accounts check says Supabase is not used yet instead of claiming it answers.
+- Ian's `.env.local` was created, with `DATABASE_URL` pointing at `harvest_the_wheel` on his Mac. It holds no secret (Postgres.app needs no password on the same computer) and is never published.
+- HELP.md section 5 now has "On your own computer" and "On Supabase". ONBOARDING.md step 11 points at the first. DATABASE.md, decision 08, backlog.
+
+**What was rejected:** Homebrew, Docker and an in-app database (decision 08). Installing Postgres.app for Ian from here: Claude cannot type into Terminal on his Mac, and installing an app is a step he should see.
+
+**Checked:** On a test copy with Postgres 16 set up like Postgres.app (no password, the Mac user name): `npm run doctor` reported the missing database; `npm run doctor -- --fix` created it and the tables; an account was created through `/signup` and landed on `/dashboard`, and its row was in `users`; signed out, `/dashboard` sends to `/login`; with Postgres stopped, the doctor said "Postgres is not running". `npm run check` passes. **Not checked:** Postgres.app itself on Ian's Mac.
+
+**Docs updated:** HELP.md, ONBOARDING.md, DATABASE.md, the doctor, decision 08, backlog.
+
+**Handoff:** Ian installs Postgres.app, presses Initialize, then double-clicks `Doctor.command` and `Start App.command`.
+
+## 2026-10-05 — Harvest the Wheel: own repository, brand, and the four app screens
+
+**Summary:** The app is now Harvest the Wheel, in Ian's GitHub. After sign-in there is a dashboard that explains what the app is and shows the Core Four positions, plus Alerts, DRIP and Learn pages, all in the new brand and usable on a phone.
+
+**Why:** Ian took the app over from Troy and wanted the product he had designed in a mockup (positions, alerts, DRIP, the wheel explained) as real pages, with a brand of its own.
+
+**What changed:**
+- **GitHub:** `origin` is now Harvestthewheel/Harvest-The-Wheel, with `develop` and `main` sent there. Troy's repository is `upstream`, read-only ([decision 07](../decisions/07-own-repository-with-upstream.md)). This one-time setup used git directly, not `npm run publish`, because there was no `origin` to publish to yet.
+- **Brand:** new colors in `src/app/globals.css` (cream, field green, wheat gold, with dark mode), a wagon-wheel mark in `src/components/brand/logo.tsx`, the name Harvest the Wheel everywhere, buttons and inputs at least 44px tall.
+- **Navigation:** Dashboard, Alerts, DRIP and Learn in the header, and as a tab bar at the bottom on a phone. Notes, Billing and Settings moved to an account row.
+- **Pages:** `/dashboard` rewritten (welcome panel that says what the app is and is not, totals, a card per Core Four ticker with its step in the wheel); new `/dashboard/alerts`, `/dashboard/drip`, `/dashboard/learn`; the home page now describes the product.
+- **Data:** PLACEHOLDER sample data from The Harvester's tracker on Sep 30, 2026, in `src/lib/wheel/sample-data.ts`. Every screen that shows it says so.
+- New small parts: `Badge` in `src/components/ui/`, `Disclaimer` and `CycleSteps` in `src/components/wheel/`.
+
+**What was rejected:**
+- Storing the sample positions in the database now. Trade entry is the real feature; a table for throwaway data would need a migration to undo.
+- A separate display font. Geist is already loaded, and a second font is another download on every phone.
+- Keeping Troy's repository as `origin` for reading and Ian's for sending: Deploy's checks would compare against the wrong repository.
+- On the phone dashboard, the three feature cards in the welcome panel are hidden: the tab bar already links those sections, and they pushed the positions a full screen down.
+
+**Checked:** `npm run check` passes. The pages were opened in a browser at 390px and 1280px wide (home, pricing, dashboard, alerts, DRIP, learn) on a copy of the project with a pretend signed-in user, because there is no database yet; no page scrolls sideways. **Not checked:** signing in for real (needs the database), dark mode in a browser, a real phone, `npm run build`, and any of it on Ian's Mac.
+
+**Docs updated:** HELP.md (where things are, the two GitHub addresses, the Actions link), DEPLOY.md (Actions link), UI.md (brand section, colors, phone layout, known gaps), NAVIGATION.md (three new addresses, the tab bar), STRUCTURE.md (`src/lib/wheel/`), decision 07, backlog.
+
+**Handoff:** Ian's next step is his own Supabase project (backlog, "Needs Ian"), so sign-in works on his computer. Then trade entry, which replaces the sample data.
+
 ## 2026-10-05 — The project works from a Mac as well as Windows
 
 **Summary:** Someone on a Mac can now follow the onboarding checklist, double-click the everyday commands, and get correct advice from the doctor. Nothing changed for Windows.

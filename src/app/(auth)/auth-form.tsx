@@ -10,7 +10,8 @@ type Props = {
   next?: string;
 };
 
-const inputClass = "rounded-md border border-border bg-card px-3 py-2 text-base font-normal";
+const inputClass =
+  "min-h-11 rounded-lg border border-border bg-card px-3 py-2 text-base font-normal focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary";
 
 /** The form on /login and /signup. The server action decides; this only shows the result. */
 export function AuthForm({ action, mode, next }: Props) {

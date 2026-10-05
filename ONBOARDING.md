@@ -143,6 +143,8 @@ Done when: the last line says "ready". Yellow lines about the database are expec
 
 The app needs the address of the database. It contains a password, so it is never saved to GitHub; you put it in your own `.env.local`.
 
+While the app is being built, the database can live on your own computer instead: follow "On your own computer" in `HELP.md`, section 5, and skip the first three boxes below.
+
 - [ ] Get the address. Either ask Troy to send it to you privately, or copy it from Supabase: open the project, click **Connect**, and copy the **Transaction pooler** address, replacing `[YOUR-PASSWORD]` with the database password
 - [ ] In the `IAN_APP` folder, right-click `.env.local` and choose **Open with Code**. On a Mac, Finder hides this file: open VS Code, choose **File**, then **Open Folder…**, pick `IAN_APP`, and click `.env.local` in the list on the left
 - [ ] Paste the address directly after `DATABASE_URL=` with no spaces, and save the file

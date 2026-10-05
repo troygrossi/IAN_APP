@@ -1,6 +1,6 @@
 # Database
 
-Tables and migrations. The database is Postgres, hosted by Supabase. The code talks to it through Drizzle. The steps to run are in [HELP.md](../../HELP.md), sections 5 and 6.
+Tables and migrations. The database is Postgres: on your own computer (Postgres.app) while the app is being built, and on Supabase for the live site ([decision 08](../decisions/08-local-postgres-while-building.md)). The code talks to it through Drizzle. The steps to run are in [HELP.md](../../HELP.md), sections 5 and 6.
 
 ## Rules
 
@@ -34,5 +34,5 @@ Tables and migrations. The database is Postgres, hosted by Supabase. The code ta
 
 ## Known gaps
 
-- One database serves both your computer and the live site until a second Supabase project is created. Before real users arrive, make a separate project for development.
+- The live database is on Supabase's free plan: no backups, and it pauses after a week without use (a daily job keeps it awake). Move to the Pro plan before people pay ([decision 09](../decisions/09-free-supabase-for-the-live-site.md)).
 - Row Level Security is not set up. It matters once the browser talks to Supabase directly; today only the server does.

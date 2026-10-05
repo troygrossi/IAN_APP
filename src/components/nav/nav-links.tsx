@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import type { NavItem } from "./nav-items";
 
 /** A row of links with the current page marked. */
-export function NavLinks({ items }: { items: NavItem[] }) {
+export function NavLinks({ items, label }: { items: NavItem[]; label?: string }) {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+    <nav aria-label={label} className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
       {items.map((item) => {
         const current = pathname === item.href;
         return (
@@ -16,7 +16,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             aria-current={current ? "page" : undefined}
-            className={current ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}
+            className={current ? "font-semibold text-primary" : "text-muted-foreground hover:text-foreground"}
           >
             {item.label}
           </Link>
