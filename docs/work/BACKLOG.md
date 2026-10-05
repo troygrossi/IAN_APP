@@ -35,6 +35,6 @@ Add ideas freely. An item needs no detail until someone starts it.
 
 ## Ideas
 
-- [ ] Onboarding step 13 has the newcomer tick boxes in the shared ONBOARDING.md and publish it. Give them something else to change if the ticks become a nuisance
+- [ ] Onboarding step 13 has the newcomer tick boxes in the shared ONBOARDING.md and Publish (save to GitHub) it. Give them something else to change if the ticks become a nuisance
 - [ ] Double-click files for Mac (`.command`), if someone on a Mac joins
 - [ ] A switch for light and dark mode
