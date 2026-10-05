@@ -4,6 +4,7 @@ import { Disclaimer } from "@/components/wheel/disclaimer";
 import { formatUsd } from "@/lib/wheel/format";
 import { CORE_FOUR, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
 import { PositionCard } from "./position-card";
+import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "Dashboard" };
 
@@ -25,7 +26,8 @@ const FEATURES = [
   },
 ] as const;
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
   const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumThisCycleUsd, 0);
   const openContracts = CORE_FOUR.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
 

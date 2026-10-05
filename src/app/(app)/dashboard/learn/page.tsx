@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
+import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "Learn the wheel" };
 
@@ -56,7 +57,8 @@ const RULES = [
   "No idle cash: after an assignment, put the money back to work within a week.",
 ] as const;
 
-export default function LearnPage() {
+export default async function LearnPage() {
+  await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-1">

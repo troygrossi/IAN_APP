@@ -1,10 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { DRIP_FUNDS, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
+import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "DRIP" };
 
-export default function DripPage() {
+export default async function DripPage() {
+  await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">

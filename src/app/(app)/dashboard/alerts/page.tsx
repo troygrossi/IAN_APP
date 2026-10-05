@@ -2,6 +2,7 @@ import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { Disclaimer } from "@/components/wheel/disclaimer";
 import { ALERTS, type TradeAlert } from "@/lib/wheel/sample-data";
+import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "Alerts" };
 
@@ -13,7 +14,8 @@ const KIND: Record<TradeAlert["kind"], { label: string; tone: BadgeTone }> = {
   expired: { label: "Expired", tone: "neutral" },
 };
 
-export default function AlertsPage() {
+export default async function AlertsPage() {
+  await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">

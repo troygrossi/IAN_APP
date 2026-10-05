@@ -1,13 +1,10 @@
-import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/nav/app-header";
-import { LOGIN_PATH } from "@/lib/auth/config";
-import { getSession } from "@/lib/auth/session";
+import { requirePageSession } from "@/lib/auth/session";
 
-// The second login gate (docs/rules/AUTH.md): every page in the (app) folder is
-// wrapped by this layout, so none of them can render for a signed-out visitor.
+// The second login gate (docs/rules/AUTH.md). This layout wraps every page in the (app)
+// folder, but it does not stop a page from running, so each page asks the same question itself.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession();
-  if (!session) redirect(LOGIN_PATH);
+  const session = await requirePageSession();
 
   return (
     <>

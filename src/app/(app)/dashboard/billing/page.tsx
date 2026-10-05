@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
+import { requirePageSession } from "@/lib/auth/session";
 import { cancelDemoPlan, startCheckout } from "@/lib/billing/actions";
 import { getCurrentPlan } from "@/lib/billing/current-plan";
 
 export const metadata = { title: "Billing" };
 
 export default async function BillingPage() {
+  await requirePageSession();
   const plan = await getCurrentPlan();
   const paid = plan.pricePerMonthUsd > 0;
   return (
