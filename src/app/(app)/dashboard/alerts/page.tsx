@@ -1,7 +1,8 @@
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { Disclaimer } from "@/components/wheel/disclaimer";
-import { ALERTS, type TradeAlert } from "@/lib/wheel/sample-data";
+import type { TradeAlert } from "@/lib/wheel/ledger";
+import { ALERTS, RECORD_START_LABEL } from "@/lib/wheel/sample-data";
 import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "Alerts" };
@@ -23,8 +24,8 @@ export default async function AlertsPage() {
         <p className="text-muted-foreground">What The Harvester did, as it happens. Never a signal to act on.</p>
       </div>
       <PlaceholderNotice>
-        These are sample alerts from The Harvester&rsquo;s tracker. Sending alerts by email or to your phone is not built
-        yet.
+        Sample alerts from The Harvester&rsquo;s tracker, starting {RECORD_START_LABEL}. Sending alerts by email or to your
+        phone is not built yet.
       </PlaceholderNotice>
 
       {ALERTS.length === 0 ? (

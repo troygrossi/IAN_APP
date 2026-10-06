@@ -1,4 +1,4 @@
-import { WHEEL_PHASES, type WheelPhase } from "@/lib/wheel/sample-data";
+import { WHEEL_PHASES, type WheelPhase } from "@/lib/wheel/ledger";
 
 /**
  * The four steps of the wheel as a segmented bar, with the current step filled.

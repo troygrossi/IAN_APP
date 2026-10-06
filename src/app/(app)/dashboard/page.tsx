@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { Disclaimer } from "@/components/wheel/disclaimer";
 import { formatUsd } from "@/lib/wheel/format";
-import { CORE_FOUR, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
+import { CORE_FOUR, RECORD_START_LABEL, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
 import { PositionCard } from "./position-card";
 import { requirePageSession } from "@/lib/auth/session";
 
@@ -28,7 +28,7 @@ const FEATURES = [
 
 export default async function DashboardPage() {
   await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
-  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumThisYearUsd, 0);
+  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumUsd, 0);
   const openContracts = CORE_FOUR.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
 
   return (
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           </div>
           <dl className="flex gap-6 text-sm">
             <div>
-              <dt className="text-muted-foreground">Premium in 2026</dt>
+              <dt className="text-muted-foreground">Premium collected</dt>
               <dd className="text-lg font-bold text-success">{formatUsd(premiumUsd)}</dd>
             </div>
             <div>
@@ -72,8 +72,9 @@ export default async function DashboardPage() {
           </dl>
         </div>
         <PlaceholderNotice>
-          These are sample positions copied from The Harvester&rsquo;s tracker on {SAMPLE_AS_OF}, not live trades. Live
-          positions appear here once trade entry is built.
+          Sample positions copied from The Harvester&rsquo;s tracker, with prices from {SAMPLE_AS_OF}. The record starts on{" "}
+          {RECORD_START_LABEL}: options open that day count, earlier trades do not. Live positions appear here once trade entry
+          is built.
         </PlaceholderNotice>
         <div className="grid gap-4 sm:grid-cols-2">
           {CORE_FOUR.map((position) => (

@@ -28,6 +28,14 @@ export function NavIcon({ name }: { name: NavIconName }) {
           <path d="M10 20.5a2 2 0 0 0 4 0" />
         </svg>
       );
+    case "pnl":
+      return (
+        <svg {...common}>
+          <path d="M4 19.5h16" />
+          <path d="M5 15.5 10 10l3.5 3.5L19.5 7" />
+          <path d="M15 7h4.5v4.5" />
+        </svg>
+      );
     case "drip":
       return (
         <svg {...common}>

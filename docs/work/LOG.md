@@ -31,6 +31,26 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — A P/L tab, and a trade record that starts Oct 1
+
+**Summary:** A new P/L tab shows each Core Four stock's profit or loss with its premium included, and a total. Positions, alerts and P/L now all come from one list of trades, which starts on Oct 1, 2026.
+
+**Why:** Ian asked for P/L per stock including premium. His tracker's history before October did not add up (MARA's August premium, and 600 shares called away against 500 bought), so he chose to start the app's record with the October trades.
+
+**What changed:**
+- `src/lib/wheel/ledger.ts`: the trade types, and functions that work out a position (phase, shares, open options, premium, realized and unrealized gain, P/L) and the alerts from a list of trades. The same functions will serve real trade entry later.
+- `src/lib/wheel/sample-data.ts`: the trades from Oct 1, plus the five puts sold in September that were still open that day (carried in with their premium). Positions and alerts are worked out from them, so they can no longer disagree.
+- `/dashboard/pnl` with a tab in the menu and the phone tab bar. The dashboard's premium total is now since Oct 1 ($2,037).
+- How P/L is counted: shares at the strike actually paid, every premium on its own, open options at the premium collected. Explained on the page.
+
+**What was rejected:** Using the tracker's "effective" share prices: they already include the put premium, which would then be counted twice. Fixing the pre-October history: Ian chose a clean start instead.
+
+**Checked:** `npm run check` passes. Opened at phone and desktop width on a test copy. Figures checked by hand: MARA +$198 (premium $930, shares −$732), RGTI −$60, IONQ +$272, CIFR −$980, total −$570 at Oct 5 prices.
+
+**Docs updated:** NAVIGATION.md, STRUCTURE.md.
+
+**Handoff:** Trade entry can now save `Trade` rows and hand them to the same functions.
+
 ## 2026-10-05 — Core Four positions as of Oct 5
 
 **Summary:** The dashboard and Alerts show The Harvester's positions as of Oct 5, 2026: the Oct 2 assignments (400 MARA, 300 RGTI, 1,000 CIFR), the first IONQ trade, and a third MARA put leg. Cards now show shares held and the premium collected in 2026.

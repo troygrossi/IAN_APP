@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { CycleSteps } from "@/components/wheel/cycle-steps";
 import { formatPrice, formatUsd } from "@/lib/wheel/format";
-import { WHEEL_PHASES, type Position } from "@/lib/wheel/sample-data";
+import { WHEEL_PHASES, type Position } from "@/lib/wheel/ledger";
 
 /** One Core Four ticker: where it sits in the wheel, its price, shares held, and what is open on it. */
 export function PositionCard({ position }: { position: Position }) {
-  const { ticker, name, phase, priceUsd, premiumThisYearUsd, shares, open, next, nextEarnings } = position;
+  const { ticker, name, phase, priceUsd, premiumUsd, shares, open, next, nextEarnings } = position;
   const phaseLabel = phase ? WHEEL_PHASES.find((step) => step.id === phase)?.label : undefined;
 
   return (
@@ -28,9 +28,9 @@ export function PositionCard({ position }: { position: Position }) {
           <dd className="text-base font-semibold">{formatPrice(priceUsd)}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Premium in 2026</dt>
-          <dd className={`text-base font-semibold ${premiumThisYearUsd > 0 ? "text-success" : ""}`}>
-            {formatUsd(premiumThisYearUsd)}
+          <dt className="text-muted-foreground">Premium collected</dt>
+          <dd className={`text-base font-semibold ${premiumUsd > 0 ? "text-success" : ""}`}>
+            {formatUsd(premiumUsd)}
           </dd>
         </div>
         {shares && (
