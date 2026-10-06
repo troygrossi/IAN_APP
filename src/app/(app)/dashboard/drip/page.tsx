@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
-import { DRIP_FUNDS, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
+import { DRIP_FUNDS, DRIP_AS_OF } from "@/lib/wheel/sample-data";
 import { requirePageSession } from "@/lib/auth/session";
 
 export const metadata = { title: "DRIP" };
@@ -36,10 +36,10 @@ export default async function DripPage() {
       <section className="flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight">The Harvester&rsquo;s DRIP watchlist</h2>
-          <p className="text-sm text-muted-foreground">As of {SAMPLE_AS_OF}</p>
+          <p className="text-sm text-muted-foreground">As of {DRIP_AS_OF}</p>
         </div>
         <PlaceholderNotice>
-          A sample of the funds The Harvester tracks, with their status on {SAMPLE_AS_OF}. Live prices are not connected
+          A sample of the funds The Harvester tracks, with their status on {DRIP_AS_OF}. Live prices are not connected
           yet.
         </PlaceholderNotice>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

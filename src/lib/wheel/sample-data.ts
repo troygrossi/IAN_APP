@@ -5,8 +5,11 @@
 
 import { alertsFrom, positionFor, type TickerInfo, type Trade } from "./ledger";
 
-/** The date the sample prices were taken, shown on screen beside them. */
-export const SAMPLE_AS_OF = "Oct 5, 2026";
+/** When the Core Four prices were taken, shown on screen beside them. */
+export const SAMPLE_AS_OF = "Oct 6, 2026, 11:14 am ET";
+
+/** When the DRIP watchlist statuses were taken. They are refreshed separately from the Core Four prices. */
+export const DRIP_AS_OF = "Oct 5, 2026";
 
 /**
  * The record starts here. Options still open on this day are carried in with the premium they
@@ -16,10 +19,10 @@ export const RECORD_START = "2026-10-01";
 export const RECORD_START_LABEL = "Oct 1, 2026";
 
 export const TICKERS: TickerInfo[] = [
-  { ticker: "MARA", name: "Marathon Digital", priceUsd: 11.17, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
-  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 15.15, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
-  { ticker: "IONQ", name: "IonQ", priceUsd: 42.97, nextEarnings: "Nov 4", next: null },
-  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 15.48, nextEarnings: "Nov 2", next: "Waiting for a good strike to sell covered calls." },
+  { ticker: "MARA", name: "Marathon Digital", priceUsd: 11.18, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
+  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 15.28, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
+  { ticker: "IONQ", name: "IonQ", priceUsd: 43.75, nextEarnings: "Nov 4", next: null },
+  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 15.64, nextEarnings: "Nov 2", next: "Waiting for a good strike to sell covered calls." },
 ];
 
 /** Oldest first. The September trades are the puts still open on Oct 1. */

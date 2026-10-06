@@ -31,6 +31,33 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — Core Four prices refreshed
+
+**Summary:** Core Four prices updated to quotes from Oct 6, 2026, 11:14 am ET:
+
+| Ticker | Old | New |
+| --- | --- | --- |
+| MARA | $11.17 | $11.18 |
+| RGTI | $15.15 | $15.28 |
+| IONQ | $42.97 | $43.75 |
+| CIFR | $15.48 | $15.64 |
+
+Positions, trade P/L and blended-cost colors follow from them.
+
+**Why:** Ian asked to update the Core Four prices.
+
+**What changed:**
+- Prices and `SAMPLE_AS_OF` in `src/lib/wheel/sample-data.ts`.
+- New `DRIP_AS_OF` (still Oct 5), so the DRIP page does not claim its statuses are newer than they are.
+
+**What was rejected:** Fetching prices automatically on every page load. That needs a market-data provider and an API key on Vercel. It also needs a license that allows showing prices to paying users. It stays in the backlog.
+
+**Checked:** `npm run check` passes. Quotes taken from Financial Modeling Prep, rounded to the cent.
+
+**Docs updated:** this log.
+
+**Handoff:** Still a snapshot, not live. The placeholder notices stay.
+
 ## 2026-10-05 — Getting started replaces Notes in the menu
 
 **Summary:** A new **Getting started** page (`/dashboard/getting-started`) walks through opening a Roth IRA at Charles Schwab and getting approved for options. It has seven steps, IRA rules to know before the first trade, what can go wrong, and links to the IRS, Schwab, OCC and FINRA pages its facts come from. It takes Notes' place in the account menu.
