@@ -31,6 +31,25 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — "No idle cash" rule now checks technicals first
+
+**Summary:** The fourth of The Harvester's rules on the Learn page now matches Ian's updated rule:
+- Aim to redeploy freed-up cash within a week, as a guideline only.
+- Before a new put, check the price against its 50-day moving average.
+- If it is still below, wait until it steadies (back above the 50-day average, or 2–3 up days in a row), even past the week.
+
+**Why:** Ian updated the rule in his portfolio notes.
+
+**What changed:** `RULES` in `src/app/(app)/dashboard/learn/page.tsx`.
+
+**What was rejected:** Showing a live "above / below 50-day average" flag on the Core Four cards. It needs live prices, which are still a snapshot (see backlog).
+
+**Checked:** `npm run check` passes.
+
+**Docs updated:** this log.
+
+**Handoff:** If live prices are built, the 50-day check could show on each card, like the DRIP watchlist's trend status.
+
 ## 2026-10-06 — Wheel cycle page per stock, with annual return
 
 **Summary:** New page `/dashboard/wheel/MARA` (and RGTI, IONQ, CIFR) shows a stock's full wheel cycle as a timeline: each put and call sold, each assignment, call-away or expiry. Each step shows:

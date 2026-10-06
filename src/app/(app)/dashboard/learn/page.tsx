@@ -54,7 +54,7 @@ const RULES = [
   "Only the Core Four: MARA, RGTI, IONQ and CIFR.",
   "100% annualized yield or more, or pass.",
   "Never hold options through an earnings date.",
-  "No idle cash: after an assignment, put the money back to work within a week.",
+  "No idle cash, but technicals first. Freed-up cash aims to go back to work within a week, but that is a guideline, not a reason to force a bad entry. Before selling a new put, The Harvester checks the price against its 50-day moving average. While it is still below (a downtrend), he waits for it to steady, by reclaiming the 50-day average or rising 2–3 days in a row, even past the week. A few days of idle cash cost less in missed premium than being assigned a stock that keeps sliding.",
 ] as const;
 
 export default async function LearnPage() {
