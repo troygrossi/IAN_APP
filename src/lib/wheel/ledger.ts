@@ -254,3 +254,70 @@ export function tradeHistory(tickers: TickerInfo[], trades: Trade[]): TradeResul
     })
     .reverse();
 }
+
+/** What the shares held in one stock cost on average, before and after the premium collected this cycle. */
+export type BlendedCost = {
+  ticker: string;
+  name: string;
+  priceUsd: number;
+  /** Shares held now, or null when none are held. */
+  shares: {
+    count: number;
+    /** Average strike actually paid across every assignment still held. */
+    paidUsd: number;
+    /** Premium from this cycle that counts against those shares. */
+    premiumUsd: number;
+    /** (What was paid − that premium) ÷ shares. */
+    netUsd: number;
+  } | null;
+};
+
+/**
+ * Blended cost per stock. "Paid" is the average strike across the lots still held. "After premium" also takes
+ * off every premium kept since the stock last had no shares (expired puts, the puts that assigned, calls sold
+ * against the shares, open calls included). Open puts are left out: if they are assigned they buy new shares,
+ * and their premium will count against those.
+ */
+export function blendedCosts(tickers: TickerInfo[], trades: Trade[]): BlendedCost[] {
+  return tickers.map((info) => {
+    const mine = trades.filter((t) => t.ticker === info.ticker).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    const options = new Map(mine.filter(isOption).map((t) => [t.id, t]));
+    const closed = new Set<string>();
+    let count = 0;
+    let costUsd = 0;
+    let cycleStart = "";
+
+    for (const trade of mine) {
+      if (isOption(trade)) continue;
+      closed.add(trade.closes);
+      const option = options.get(trade.closes);
+      if (!option || trade.type === "expired") continue;
+      const shares = option.count * SHARES_PER_CONTRACT;
+      if (trade.type === "assigned") {
+        count += shares;
+        costUsd += shares * option.strikeUsd;
+      } else {
+        const averageUsd = count > 0 ? costUsd / count : 0;
+        costUsd -= shares * averageUsd;
+        count -= shares;
+        if (count <= 0) {
+          count = 0;
+          costUsd = 0;
+          cycleStart = trade.date; // a new cycle starts once every share is gone
+        }
+      }
+    }
+
+    if (count === 0) return { ticker: info.ticker, name: info.name, priceUsd: info.priceUsd, shares: null };
+
+    const premiumUsd = [...options.values()]
+      .filter((o) => o.date >= cycleStart && !(o.type === "sell-put" && !closed.has(o.id)))
+      .reduce((sum, o) => sum + o.premiumUsd, 0);
+    return {
+      ticker: info.ticker,
+      name: info.name,
+      priceUsd: info.priceUsd,
+      shares: { count, paidUsd: costUsd / count, premiumUsd, netUsd: (costUsd - premiumUsd) / count },
+    };
+  });
+}

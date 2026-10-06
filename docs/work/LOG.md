@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Blended cost per stock on the Trades tab
+
+**Summary:** The Trades tab now shows a blended cost card for each Core Four stock above the trade list: shares held, the average strike paid, the cost after this cycle's premium, and today's price. At Oct 5 prices that is MARA $13.00 → $12.42, RGTI $16.00 → $15.35, CIFR $17.10 → $16.46. IONQ shows no shares held.
+
+**Why:** Ian asked for a blended cost per stock in the trade history.
+
+**What changed:** `blendedCosts()` and `BlendedCost` in `src/lib/wheel/ledger.ts`. A "Blended cost per stock" section and a note in "How each trade's P/L is counted" on `src/app/(app)/dashboard/trades/page.tsx`.
+
+**What was rejected:** Taking off every premium ever collected on the ticker. That would credit MARA's open Oct 16 puts against shares those puts did not buy ($10.68 instead of $12.42). Open puts are left out, and premium from before the stock last had no shares is left out too. Not showing "after premium" at all: Ian's tracker already uses that number.
+
+**Checked:** `npm run check` passes. Looked at the page in a preview at phone and desktop width. The numbers match the tracker.
+
+**Docs updated:** this log.
+
+**Handoff:** If Ian wants only one of the two costs, drop the other column in `BlendedCostCard`.
+
 ## 2026-10-05 — Trade history replaces the P/L tab
 
 **Summary:** The tab added an hour earlier is now **Trades** (`/dashboard/trades`): every option sold since Oct 1, newest first, each with its own P/L and what became of it (open, expired, assigned, called away), plus totals. The per-stock P/L page is gone.
