@@ -3,9 +3,9 @@ import { CycleSteps } from "@/components/wheel/cycle-steps";
 import { formatPrice, formatUsd } from "@/lib/wheel/format";
 import { WHEEL_PHASES, type Position } from "@/lib/wheel/sample-data";
 
-/** One Core Four ticker: where it sits in the wheel, its price, and what is open on it. */
+/** One Core Four ticker: where it sits in the wheel, its price, shares held, and what is open on it. */
 export function PositionCard({ position }: { position: Position }) {
-  const { ticker, name, phase, priceUsd, premiumThisCycleUsd, open, nextEarnings } = position;
+  const { ticker, name, phase, priceUsd, premiumThisYearUsd, shares, open, next, nextEarnings } = position;
   const phaseLabel = phase ? WHEEL_PHASES.find((step) => step.id === phase)?.label : undefined;
 
   return (
@@ -17,7 +17,7 @@ export function PositionCard({ position }: { position: Position }) {
           <h3 className="text-xl font-bold tracking-tight">{ticker}</h3>
           <p className="text-sm text-muted-foreground">{name}</p>
         </div>
-        {phaseLabel ? <Badge tone="success">{phaseLabel}</Badge> : <Badge>Watching</Badge>}
+        {phaseLabel ? <Badge tone={phase === "assigned" ? "accent" : "success"}>{phaseLabel}</Badge> : <Badge>Watching</Badge>}
       </header>
 
       {phase && <CycleSteps phase={phase} />}
@@ -28,11 +28,20 @@ export function PositionCard({ position }: { position: Position }) {
           <dd className="text-base font-semibold">{formatPrice(priceUsd)}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Premium this cycle</dt>
-          <dd className={`text-base font-semibold ${premiumThisCycleUsd > 0 ? "text-success" : ""}`}>
-            {formatUsd(premiumThisCycleUsd)}
+          <dt className="text-muted-foreground">Premium in 2026</dt>
+          <dd className={`text-base font-semibold ${premiumThisYearUsd > 0 ? "text-success" : ""}`}>
+            {formatUsd(premiumThisYearUsd)}
           </dd>
         </div>
+        {shares && (
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">Shares held</dt>
+            <dd className="text-base font-semibold">
+              {shares.count.toLocaleString("en-US")} at {formatPrice(shares.costPerShareUsd)}
+              <span className="text-sm font-normal text-muted-foreground"> · since {shares.since}</span>
+            </dd>
+          </div>
+        )}
       </dl>
 
       {open.length > 0 ? (
@@ -48,10 +57,10 @@ export function PositionCard({ position }: { position: Position }) {
           ))}
         </ul>
       ) : (
-        <p className="border-t border-border pt-3 text-sm text-muted-foreground">
-          Nothing open on {ticker} right now. It stays on the Core Four list for the next good entry.
-        </p>
+        <p className="border-t border-border pt-3 text-sm text-muted-foreground">No options open on {ticker} right now.</p>
       )}
+
+      {next && <p className="text-sm">{next}</p>}
 
       <p className="text-sm text-muted-foreground">Next earnings: {nextEarnings}. The Harvester never holds options through earnings.</p>
     </article>

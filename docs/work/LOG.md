@@ -31,6 +31,24 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Core Four positions as of Oct 5
+
+**Summary:** The dashboard and Alerts show The Harvester's positions as of Oct 5, 2026: the Oct 2 assignments (400 MARA, 300 RGTI, 1,000 CIFR), the first IONQ trade, and a third MARA put leg. Cards now show shares held and the premium collected in 2026.
+
+**Why:** Ian asked for the app to show today's Core Four trades.
+
+**What changed:**
+- `src/lib/wheel/sample-data.ts`: copied from the Roth Wheel Tracker as last updated on Oct 5, 2026, with that day's prices. Positions gained `shares` and `next`; "premium this cycle" became "premium in 2026" ($2,764 in all), which is the number the tracker keeps. Five new alerts, and one that was missing (2 CIFR $17.50 puts, Sep 21).
+- `position-card.tsx`: shows shares held, uses the gold badge for "Assigned", and says what The Harvester is waiting to do next.
+
+**What was rejected:** Showing MARA as "Selling puts". It holds 400 assigned shares, so it is at "Assigned", and its open puts are listed under it.
+
+**Checked:** `npm run check` passes. Dashboard and Alerts opened at phone and desktop width on a test copy; nothing scrolls sideways. Totals match the tracker: $2,764 premium, 16 open contracts.
+
+**Docs updated:** none needed.
+
+**Handoff:** This is still a copy by hand. Trade entry (backlog) is what makes it update itself.
+
 ## 2026-10-05 — Row Level Security on every table
 
 **Summary:** `users`, `sessions` and `notes` have Row Level Security on, so Supabase's public web API can no longer read or change them, even with the project's public key. The app is unaffected.

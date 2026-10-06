@@ -28,7 +28,7 @@ const FEATURES = [
 
 export default async function DashboardPage() {
   await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
-  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumThisCycleUsd, 0);
+  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumThisYearUsd, 0);
   const openContracts = CORE_FOUR.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
 
   return (
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           </div>
           <dl className="flex gap-6 text-sm">
             <div>
-              <dt className="text-muted-foreground">Premium this cycle</dt>
+              <dt className="text-muted-foreground">Premium in 2026</dt>
               <dd className="text-lg font-bold text-success">{formatUsd(premiumUsd)}</dd>
             </div>
             <div>
