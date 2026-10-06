@@ -14,6 +14,7 @@ Addresses, menus and links.
 | `/dashboard` | Signed in | Home after sign-in: what the app is, and the Core Four positions |
 | `/dashboard/alerts` | Signed in | The Harvester's trades, newest first |
 | `/dashboard/trades` | Signed in | Trade history: every option sold since the record started, each with its P/L |
+| `/dashboard/wheel/[ticker]` | Signed in | One stock's full wheel cycle, step by step: each put and call, premium, blended cost, profit and annual return. Linked from the Core Four cards and the Trades tab |
 | `/dashboard/drip` | Signed in | What DRIP means, and the DRIP watchlist |
 | `/dashboard/learn` | Signed in | How the wheel works, the rules, the words |
 | `/dashboard/getting-started` | Signed in | Opening a Roth IRA at Schwab and getting options approval, step by step |

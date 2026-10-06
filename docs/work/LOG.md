@@ -31,6 +31,44 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — Wheel cycle page per stock, with annual return
+
+**Summary:** New page `/dashboard/wheel/MARA` (and RGTI, IONQ, CIFR) shows a stock's full wheel cycle as a timeline: each put and call sold, each assignment, call-away or expiry. Each step shows:
+- the premium it brought in;
+- for options, the annualized yield;
+- the premium collected so far;
+- the shares held, at blended cost before and after premium.
+
+A summary per cycle shows cycle profit, annual return % (and premium-only), premium, the shares' result, and the money tied up. Linked from each Core Four card ("See the full … wheel cycle") and from the blended-cost cards on Trades.
+
+**Why:** Ian asked for a way to see the full wheel cycle per stock, with entries, premium, blended cost and profit, then added "annual return %".
+
+**What changed:**
+- `wheelCycles()`, `CycleStep` and `WheelCycle` in `src/lib/wheel/ledger.ts`.
+- `SAMPLE_AS_OF_ISO` in sample-data.
+- The new page.
+- Links on `position-card.tsx` and the Trades page.
+- NAVIGATION.md.
+
+**What was rejected:**
+- A sixth tab-bar item; the rules keep it at five. The page is reached from the cards instead.
+- Annualizing an open cycle over the days so far: IONQ would read 1,000%+ after one day. It runs to the last open expiry instead, since that premium is already counted.
+
+**Checked:**
+- `npm run check` passes.
+- Per-option annualized matches the tracker's figures:
+  - MARA $13 put: 148.0%
+  - CIFR $17 put: 184.0%
+  - IONQ $42 put: 107.4%
+- Cycle numbers match Trades and blended cost:
+  - CIFR: −$250 profit; $15.89 after premium.
+  - MARA: +$202.
+- Preview at phone and desktop width.
+
+**Docs updated:** NAVIGATION.md, this log.
+
+**Handoff:** A cycle ends when the last shares are called away and no put is open. None has ended yet in the record, so every stock shows one cycle still going.
+
 ## 2026-10-06 — Oct 6 trade: CIFR covered calls
 
 **Summary:** Added today's Roth trade on the Core Four: 10 CIFR $16.50 calls, Oct 16 expiry, $0.57 each ($570), covering all 1,000 Roth shares. CIFR moves to "Selling calls". Its blended cost after premium drops from $16.46 to $15.89. The trade shows on Alerts and Trades.

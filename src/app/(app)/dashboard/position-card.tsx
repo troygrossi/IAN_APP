@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { CycleSteps } from "@/components/wheel/cycle-steps";
 import { formatPrice, formatUsd } from "@/lib/wheel/format";
@@ -63,6 +64,10 @@ export function PositionCard({ position }: { position: Position }) {
       {next && <p className="text-sm">{next}</p>}
 
       <p className="text-sm text-muted-foreground">Next earnings: {nextEarnings}. The Harvester never holds options through earnings.</p>
+
+      <Link href={`/dashboard/wheel/${ticker}`} className="text-sm font-semibold text-primary underline underline-offset-2">
+        See the full {ticker} wheel cycle
+      </Link>
     </article>
   );
 }

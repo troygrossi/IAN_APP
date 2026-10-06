@@ -321,3 +321,166 @@ export function blendedCosts(tickers: TickerInfo[], trades: Trade[]): BlendedCos
     };
   });
 }
+
+/** One thing that happened in a wheel cycle, with where the cycle stood right after it. */
+export type CycleStep = {
+  id: string;
+  date: string;
+  kind: TradeAlert["kind"];
+  title: string;
+  detail: string;
+  /** Premium this step brought in, if it was an option sold. */
+  premiumUsd: number | null;
+  /** For an option sold: premium ÷ (strike × shares), scaled to a year over the days until it expires. */
+  annualizedPct: number | null;
+  /** Gain or loss locked in by this step, if it sold shares. */
+  realizedUsd: number | null;
+  /** Premium collected in the cycle so far, this step included. */
+  premiumToDateUsd: number;
+  /** Shares held right after this step, with their blended cost before and after premium. */
+  shares: { count: number; paidUsd: number; netUsd: number } | null;
+};
+
+/** One turn of the wheel on one stock: from the first put sold until every share is called away. */
+export type WheelCycle = {
+  number: number;
+  started: string;
+  /** When the last shares were called away, or null while the cycle is still going. */
+  ended: string | null;
+  steps: CycleStep[];
+  premiumUsd: number;
+  /** Gain or loss on shares already called away. */
+  realizedUsd: number;
+  /** Gain or loss on shares still held, at today's price. */
+  unrealizedUsd: number;
+  /** premium + realized + unrealized. */
+  profitUsd: number;
+  shares: { count: number; paidUsd: number; netUsd: number } | null;
+  /** The most money the cycle had tied up at once: shares at what was paid, plus cash set aside for open puts. */
+  capitalUsd: number;
+  /** Days from the first trade to the end: when the shares were called away, or (still going) the later of today and the last open expiry. */
+  days: number;
+  /** profit ÷ capital. */
+  returnPct: number;
+  /** returnPct scaled to a year. */
+  annualizedPct: number;
+};
+
+const DAY_MS = 86_400_000;
+const daysBetween = (fromIso: string, toIso: string) =>
+  Math.max(1, Math.round((Date.parse(`${toIso}T12:00:00Z`) - Date.parse(`${fromIso}T12:00:00Z`)) / DAY_MS));
+
+/**
+ * Splits one ticker's trades into wheel cycles, oldest first, and walks each one step by step.
+ * Blended cost "after premium" follows the same rule as blendedCosts(): premium from every option in the cycle
+ * except puts still open at that moment (if assigned they buy new shares, and count against those).
+ */
+export function wheelCycles(info: TickerInfo, trades: Trade[], asOfIso: string): WheelCycle[] {
+  const mine = trades
+    .filter((t) => t.ticker === info.ticker)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const options = new Map(mine.filter(isOption).map((t) => [t.id, t]));
+  const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
+  const plural = (n: number, word: string) => `${n.toLocaleString("en-US")} ${word}${n === 1 ? "" : "s"}`;
+
+  const cycles: WheelCycle[] = [];
+  let cycle: WheelCycle | null = null;
+  let sold: OptionTrade[] = []; // options sold in the current cycle
+  const open = new Set<string>();
+  let count = 0;
+  let costUsd = 0;
+  let startIso = "";
+  let capitalUsd = 0;
+
+  const tiedUp = () =>
+    costUsd +
+    [...open].reduce((sum, id) => {
+      const o = options.get(id);
+      return o?.type === "sell-put" ? sum + o.count * SHARES_PER_CONTRACT * o.strikeUsd : sum;
+    }, 0);
+  const finish = (c: WheelCycle, endIso: string) => {
+    c.capitalUsd = capitalUsd;
+    c.days = daysBetween(startIso, endIso);
+    c.returnPct = capitalUsd > 0 ? (c.profitUsd / capitalUsd) * 100 : 0;
+    c.annualizedPct = (c.returnPct * 365) / c.days;
+  };
+
+  const holding = () => {
+    if (count === 0) return null;
+    const creditedUsd = sold.filter((o) => !(o.type === "sell-put" && open.has(o.id))).reduce((sum, o) => sum + o.premiumUsd, 0);
+    return { count, paidUsd: costUsd / count, netUsd: (costUsd - creditedUsd) / count };
+  };
+
+  for (const trade of mine) {
+    if (!cycle) {
+      cycle = { number: cycles.length + 1, started: shortDate(trade.date), ended: null, steps: [], premiumUsd: 0, realizedUsd: 0, unrealizedUsd: 0, profitUsd: 0, shares: null, capitalUsd: 0, days: 0, returnPct: 0, annualizedPct: 0 };
+      cycles.push(cycle);
+      sold = [];
+      startIso = trade.date;
+      capitalUsd = 0;
+    }
+    let step: Omit<CycleStep, "premiumToDateUsd" | "shares">;
+
+    if (isOption(trade)) {
+      sold.push(trade);
+      open.add(trade.id);
+      cycle.premiumUsd += trade.premiumUsd;
+      const isPut = trade.type === "sell-put";
+      step = {
+        id: trade.id,
+        date: shortDate(trade.date),
+        kind: isPut ? "sold-put" : "sold-call",
+        title: `Sold ${trade.count} × ${money(trade.strikeUsd)} ${isPut ? "cash-secured put" : "covered call"}${trade.count === 1 ? "" : "s"}`,
+        detail: `Expire ${shortDate(trade.expires)} · ${isPut ? "would buy" : "would sell"} ${plural(trade.count * SHARES_PER_CONTRACT, "share")} at ${money(trade.strikeUsd)}`,
+        premiumUsd: trade.premiumUsd,
+        annualizedPct:
+          (trade.premiumUsd / (trade.count * SHARES_PER_CONTRACT * trade.strikeUsd)) * (365 / daysBetween(trade.date, trade.expires)) * 100,
+        realizedUsd: null,
+      };
+    } else {
+      const option = options.get(trade.closes);
+      open.delete(trade.closes);
+      const shares = (option?.count ?? 0) * SHARES_PER_CONTRACT;
+      const strike = option?.strikeUsd ?? 0;
+      const label = option ? `${money(strike)} ${option.type === "sell-put" ? "put" : "call"}${option.count === 1 ? "" : "s"}` : "options";
+      if (trade.type === "assigned") {
+        count += shares;
+        costUsd += shares * strike;
+        step = { id: trade.id, date: shortDate(trade.date), kind: "assigned", title: `Assigned ${plural(shares, "share")} at ${money(strike)}`, detail: `The ${label} were used`, premiumUsd: null, annualizedPct: null, realizedUsd: null };
+      } else if (trade.type === "called-away") {
+        const averageUsd = count > 0 ? costUsd / count : 0;
+        const realizedUsd = shares * (strike - averageUsd);
+        cycle.realizedUsd += realizedUsd;
+        costUsd -= shares * averageUsd;
+        count -= shares;
+        step = { id: trade.id, date: shortDate(trade.date), kind: "called-away", title: `${plural(shares, "share")} called away at ${money(strike)}`, detail: `The ${label} were used`, premiumUsd: null, annualizedPct: null, realizedUsd };
+      } else {
+        step = { id: trade.id, date: shortDate(trade.date), kind: "expired", title: `The ${label} expired unused`, detail: "The whole premium is kept", premiumUsd: null, annualizedPct: null, realizedUsd: null };
+      }
+    }
+
+    cycle.steps.push({ ...step, premiumToDateUsd: cycle.premiumUsd, shares: holding() });
+    capitalUsd = Math.max(capitalUsd, tiedUp());
+
+    // The cycle is complete once every share is called away and no put is waiting to buy more.
+    const putsOpen = [...open].some((id) => options.get(id)?.type === "sell-put");
+    if (trade.type === "called-away" && count <= 0 && !putsOpen) {
+      count = 0;
+      costUsd = 0;
+      cycle.ended = shortDate(trade.date);
+      cycle.profitUsd = cycle.premiumUsd + cycle.realizedUsd;
+      finish(cycle, trade.date);
+      cycle = null;
+    }
+  }
+
+  if (cycle) {
+    cycle.unrealizedUsd = count * info.priceUsd - costUsd;
+    cycle.shares = holding();
+    cycle.profitUsd = cycle.premiumUsd + cycle.realizedUsd + cycle.unrealizedUsd;
+    // Open options are counted at their full premium, so the cycle runs at least until the last of them expires.
+    const lastExpiry = [...open].map((id) => options.get(id)?.expires ?? asOfIso).reduce((a, b) => (a > b ? a : b), asOfIso);
+    finish(cycle, lastExpiry);
+  }
+  return cycles;
+}

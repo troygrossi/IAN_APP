@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { Disclaimer } from "@/components/wheel/disclaimer";
@@ -63,7 +64,9 @@ function BlendedCostCard({ stock }: { stock: BlendedCost }) {
   return (
     <li className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-semibold">{ticker}</p>
+        <Link href={`/dashboard/wheel/${ticker}`} className="font-semibold text-primary underline underline-offset-2">
+          {ticker} cycle
+        </Link>
         <p className="text-sm text-muted-foreground">
           {shares ? `${shares.count.toLocaleString("en-US")} shares` : "No shares held"}
         </p>

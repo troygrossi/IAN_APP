@@ -7,6 +7,8 @@ import { alertsFrom, positionFor, type TickerInfo, type Trade } from "./ledger";
 
 /** When the Core Four prices were taken, shown on screen beside them. */
 export const SAMPLE_AS_OF = "Oct 6, 2026, 11:14 am ET";
+/** The same moment as a date, for working out how many days a cycle has run. */
+export const SAMPLE_AS_OF_ISO = "2026-10-06";
 
 /** When the DRIP watchlist statuses were taken. They are refreshed separately from the Core Four prices. */
 export const DRIP_AS_OF = "Oct 5, 2026";
