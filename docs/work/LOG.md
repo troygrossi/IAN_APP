@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Trade history replaces the P/L tab
+
+**Summary:** The tab added an hour earlier is now **Trades** (`/dashboard/trades`): every option sold since Oct 1, newest first, each with its own P/L and what became of it (open, expired, assigned, called away), plus totals. The per-stock P/L page is gone.
+
+**Why:** Ian preferred P/L on each trade to P/L per stock.
+
+**What changed:** `tradeHistory()` in `src/lib/wheel/ledger.ts`: an assigned put carries the result of the shares it bought (held ones at today's price, called-away ones at their sale price, first in first out), so the rows add up to the same total as the positions. `/dashboard/pnl` removed; menu and tab bar say "Trades". NAVIGATION.md updated.
+
+**What was rejected:** Keeping both tabs: two ways to read one number, and a sixth tab is too many for a phone.
+
+**Checked:** `npm run check` passes. Opened at phone and desktop width on a test copy. The rows add up to the same −$570 at Oct 5 prices: MARA $13 puts −$500, RGTI −$60, CIFR $17.50 −$244, CIFR $17 −$736, MARA $11.50 +$513, IONQ +$272, MARA $10.50 +$185.
+
+**Docs updated:** NAVIGATION.md, STRUCTURE.md.
+
+**Handoff:** none
+
 ## 2026-10-05 — A P/L tab, and a trade record that starts Oct 1
 
 **Summary:** A new P/L tab shows each Core Four stock's profit or loss with its premium included, and a total. Positions, alerts and P/L now all come from one list of trades, which starts on Oct 1, 2026.

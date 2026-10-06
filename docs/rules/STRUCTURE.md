@@ -19,7 +19,7 @@ Where files go and how they are named.
 | `src/lib/services/` | What the server does with data. The only code that touches the database | `notes.ts` |
 | `src/lib/db/` | The database connection and schema | `schema.ts` |
 | `src/lib/auth/`, `src/lib/billing/` | Login and payments | `session.ts`, `plans.ts` |
-| `src/lib/wheel/` | The wheel strategy: working out positions, alerts and P/L from trades (`ledger.ts`), the sample trades, number formatting | `ledger.ts` |
+| `src/lib/wheel/` | The wheel strategy: working out positions, alerts and each trade's P/L from trades (`ledger.ts`), the sample trades, number formatting | `ledger.ts` |
 | The top of the project, `*.cmd` and `*.command` | Double-click files for everyday commands, for Windows and for a Mac. Each only starts an `npm run` command | `Start App.cmd`, `Start App.command` |
 | `scripts/` | The commands behind `npm run doctor`, `help`, `sync`, `publish`, `deploy` and `check:docs` | `doctor.mjs` |
 | `.github/workflows/` | What GitHub runs by itself after a Publish (save to GitHub) or a Deploy (deploy to Vercel) | `ci.yml` |

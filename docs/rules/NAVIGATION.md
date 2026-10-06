@@ -13,7 +13,7 @@ Addresses, menus and links.
 | Any address not in this table | Signed in | Pages are private unless listed as public |
 | `/dashboard` | Signed in | Home after sign-in: what the app is, and the Core Four positions |
 | `/dashboard/alerts` | Signed in | The Harvester's trades, newest first |
-| `/dashboard/pnl` | Signed in | Profit and loss per Core Four stock, premium included |
+| `/dashboard/trades` | Signed in | Trade history: every option sold since the record started, each with its P/L |
 | `/dashboard/drip` | Signed in | What DRIP means, and the DRIP watchlist |
 | `/dashboard/learn` | Signed in | How the wheel works, the rules, the words |
 | `/dashboard/notes` | Signed in | The example feature |

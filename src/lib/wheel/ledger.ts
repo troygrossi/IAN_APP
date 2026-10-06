@@ -169,3 +169,88 @@ export function alertsFrom(trades: Trade[], fromIso: string): TradeAlert[] {
       return { id: trade.id, date, kind: "expired", headline: `The Harvester's ${trade.ticker} ${strike} options expired unused`, detail: "The whole premium is kept" };
     });
 }
+
+/** One option sold, with what became of it and what it made or lost so far. */
+export type TradeResult = {
+  id: string;
+  ticker: string;
+  kind: "put" | "call";
+  count: number;
+  strikeUsd: number;
+  sold: string;
+  expires: string;
+  premiumUsd: number;
+  outcome: "open" | "expired" | "assigned" | "called-away";
+  /** When it expired, was assigned or was called away. */
+  closed: string | null;
+  /** Shares this put brought in, and how they have done: sold ones at their sale price, held ones at today's price. */
+  shares: { count: number; paidUsd: number; nowUsd: number; resultUsd: number } | null;
+  /** Premium plus the shares' result. */
+  profitUsd: number;
+};
+
+/**
+ * Every option sold, newest first, each with its own P/L. A put that was assigned carries the result of the
+ * shares it bought (first in, first out when shares are called away), so the rows add up to the same total
+ * as the positions and nothing is counted twice.
+ */
+export function tradeHistory(tickers: TickerInfo[], trades: Trade[]): TradeResult[] {
+  const price = new Map(tickers.map((t) => [t.ticker, t.priceUsd]));
+  const sorted = [...trades].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const options = new Map(sorted.filter(isOption).map((t) => [t.id, t]));
+  const closedBy = new Map(sorted.filter((t) => !isOption(t)).map((t) => [(t as Exclude<Trade, OptionTrade>).closes, t]));
+  // Lots of shares per ticker, oldest first: which put bought them, at what price, and how many were sold since.
+  const lots = new Map<string, { putId: string; shares: number; paidUsd: number; soldShares: number; soldUsd: number }[]>();
+
+  for (const trade of sorted) {
+    if (isOption(trade)) continue;
+    const option = options.get(trade.closes);
+    if (!option) continue;
+    const shares = option.count * SHARES_PER_CONTRACT;
+    const list = lots.get(trade.ticker) ?? [];
+    if (trade.type === "assigned") {
+      list.push({ putId: option.id, shares, paidUsd: option.strikeUsd, soldShares: 0, soldUsd: 0 });
+    } else if (trade.type === "called-away") {
+      let left = shares;
+      for (const lot of list) {
+        const take = Math.min(left, lot.shares - lot.soldShares);
+        lot.soldShares += take;
+        lot.soldUsd += take * option.strikeUsd;
+        left -= take;
+        if (left === 0) break;
+      }
+    }
+    lots.set(trade.ticker, list);
+  }
+
+  return [...options.values()]
+    .map((option): TradeResult => {
+      const closing = closedBy.get(option.id);
+      const outcome = !closing ? "open" : closing.type === "assigned" ? "assigned" : closing.type === "called-away" ? "called-away" : "expired";
+      const lot = (lots.get(option.ticker) ?? []).find((l) => l.putId === option.id);
+      const nowUsd = price.get(option.ticker) ?? 0;
+      const shares = lot
+        ? {
+            count: lot.shares,
+            paidUsd: lot.paidUsd,
+            nowUsd,
+            resultUsd: lot.soldUsd + (lot.shares - lot.soldShares) * nowUsd - lot.shares * lot.paidUsd,
+          }
+        : null;
+      return {
+        id: option.id,
+        ticker: option.ticker,
+        kind: option.type === "sell-put" ? "put" : "call",
+        count: option.count,
+        strikeUsd: option.strikeUsd,
+        sold: shortDate(option.date),
+        expires: shortDate(option.expires),
+        premiumUsd: option.premiumUsd,
+        outcome,
+        closed: closing ? shortDate(closing.date) : null,
+        shares,
+        profitUsd: option.premiumUsd + (shares?.resultUsd ?? 0),
+      };
+    })
+    .reverse();
+}

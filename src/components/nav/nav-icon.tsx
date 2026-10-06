@@ -28,7 +28,7 @@ export function NavIcon({ name }: { name: NavIconName }) {
           <path d="M10 20.5a2 2 0 0 0 4 0" />
         </svg>
       );
-    case "pnl":
+    case "trades":
       return (
         <svg {...common}>
           <path d="M4 19.5h16" />
