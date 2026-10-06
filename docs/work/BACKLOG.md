@@ -34,8 +34,6 @@ These need his own accounts and passwords, so only he can do them. The steps are
 - [ ] Live prices for the Core Four and the DRIP watchlist, from a market data service
 - [ ] Send alerts by email or to a phone when a trade is entered
 
-- [ ] Turn on Row Level Security for `users`, `sessions` and `notes` with a migration (Supabase warns about it; the app connects as the table owner, so it keeps working) ([AUTH.md](../rules/AUTH.md), Known gaps)
-
 ## Later
 
 - [ ] "Forgot password", which needs a way to send email ([AUTH.md](../rules/AUTH.md), Known gaps)

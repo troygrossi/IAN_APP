@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Row Level Security on every table
+
+**Summary:** `users`, `sessions` and `notes` have Row Level Security on, so Supabase's public web API can no longer read or change them, even with the project's public key. The app is unaffected.
+
+**Why:** Supabase flagged the three tables as exposed. The app never uses that public route, but the door was open.
+
+**What changed:** `.enableRLS()` on the three tables in `src/lib/db/schema.ts`, and the generated migration `drizzle/0001_row_level_security.sql` (three `ENABLE ROW LEVEL SECURITY` lines, nothing dropped). DATABASE.md: new rule, the old known gap removed. `package-lock.json` also carries the small correction Ian's Mac made on its first `npm install` (the project's name inside it).
+
+**What was rejected:** Policies. With none, only the table owner gets in, which is exactly the app. Policies are needed only if the browser talks to Supabase directly. Also rejected: switching it on by hand in Supabase, which would skip the migration and leave Ian's local database without it.
+
+**Checked:** `npm run check` passes. On a test database: after the migration the owner still read its rows, and a separate role with read permission saw none. On Supabase: the tables are owned by `postgres`, the role the app connects as. The live check after this deploy confirms the site still reaches its database.
+
+**Docs updated:** DATABASE.md, backlog.
+
+**Handoff:** A new table needs `.enableRLS()` too; the rule says so.
+
 ## 2026-10-05 — Follow-up: the live site reaches its database
 
 **Summary:** https://harvest-the-wheel.vercel.app is up with its Supabase database connected, and the deploy pipeline's three jobs all pass. The tables `users`, `sessions` and `notes` exist in Supabase.

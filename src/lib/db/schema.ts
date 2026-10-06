@@ -2,6 +2,10 @@ import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-c
 
 // The shape of the database. This file is the source of truth (docs/rules/DATABASE.md).
 // After changing it: `npm run db:generate`, then `npm run db:migrate`.
+//
+// Every table ends with .enableRLS() (Row Level Security, docs/rules/DATABASE.md). With no
+// policies, only the table's owner can read or write it: that is the app's own connection.
+// Supabase's public web API, which uses other roles, sees nothing.
 
 /** One row per person who can sign in (docs/rules/AUTH.md). */
 export const users = pgTable("users", {
@@ -17,7 +21,7 @@ export const users = pgTable("users", {
   plan: text("plan").notNull().default("free"),
   stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /** One row per signed-in browser. Deleting the row signs that browser out. */
 export const sessions = pgTable(
@@ -33,7 +37,7 @@ export const sessions = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("sessions_user_id_idx").on(table.userId)],
-);
+).enableRLS();
 
 /** Example table that proves the whole path works. Replace with the real product's tables. */
 export const notes = pgTable(
@@ -47,4 +51,4 @@ export const notes = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("notes_user_id_idx").on(table.userId)],
-);
+).enableRLS();

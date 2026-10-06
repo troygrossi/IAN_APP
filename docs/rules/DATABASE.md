@@ -18,6 +18,8 @@ Tables and migrations. The database is Postgres: on your own computer (Postgres.
 
 **Every table has** an `id` (uuid, generated) and a `createdAt` (timestamp with time zone, defaults to now).
 
+**Every table has Row Level Security on:** it ends with `.enableRLS()` in `schema.ts`. With no policies, only the table's owner can read or write it. The app connects as the owner (`postgres`), so it is not affected; Supabase's public web API connects as other roles and sees nothing. Add policies only if the browser ever talks to Supabase directly.
+
 **Names:** tables are plural and snake_case (`notes`). Columns are snake_case in the database and camelCase in code (`created_at` / `createdAt`).
 
 **Only services query the database** ([DATA_FLOW.md](DATA_FLOW.md)).
@@ -35,4 +37,3 @@ Tables and migrations. The database is Postgres: on your own computer (Postgres.
 ## Known gaps
 
 - The live database is on Supabase's free plan: no backups, and it pauses after a week without use (a daily job keeps it awake). Move to the Pro plan before people pay ([decision 09](../decisions/09-free-supabase-for-the-live-site.md)).
-- Row Level Security is not set up. It matters once the browser talks to Supabase directly; today only the server does.
