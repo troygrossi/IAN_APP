@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — DRIP card on the dashboard
+
+**Summary:** The dashboard's welcome panel has a fourth card, "DRIP for spare cash", linking to `/dashboard/drip`, alongside positions, alerts and learn.
+
+**Why:** Ian asked for a DRIP link with a description like the others.
+
+**What changed:** `FEATURES` in `src/app/(app)/dashboard/page.tsx`. The Learn card no longer mentions DRIP, since DRIP has its own card now. The cards sit 2 across on tablets and 4 across on wide screens (they were 3 across).
+
+**What was rejected:** Showing the cards on phones. The tab bar already links every section there.
+
+**Checked:** `npm run check` passes. Looked at it in a preview at tablet and desktop width.
+
+**Docs updated:** this log.
+
+**Handoff:** none.
+
 ## 2026-10-05 — Blended cost per stock on the Trades tab
 
 **Summary:** The Trades tab now shows a blended cost card for each Core Four stock above the trade list: shares held, the average strike paid, the cost after this cycle's premium, and today's price. At Oct 5 prices that is MARA $13.00 → $12.42, RGTI $16.00 → $15.35, CIFR $17.10 → $16.46. IONQ shows no shares held.

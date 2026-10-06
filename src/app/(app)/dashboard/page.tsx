@@ -21,8 +21,13 @@ const FEATURES = [
   },
   {
     title: "Learn the wheel",
-    body: "How the strategy works step by step, the words it uses, and DRIP for cash that is not yet enough for 100 shares.",
+    body: "How the strategy works step by step, and the words it uses, explained in plain English.",
     href: "/dashboard/learn",
+  },
+  {
+    title: "DRIP for spare cash",
+    body: "Not enough for 100 shares yet? Income ETFs that reinvest their dividends, so smaller amounts keep growing.",
+    href: "/dashboard/drip",
   },
 ] as const;
 
@@ -42,7 +47,7 @@ export default async function DashboardPage() {
           premium it brings in. You watch and learn; every decision stays yours.
         </p>
         {/* On a phone the tab bar already links these sections, so the cards wait for a wider screen. */}
-        <ul className="hidden gap-3 sm:grid sm:grid-cols-3">
+        <ul className="hidden gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((feature) => (
             <li key={feature.title}>
               <Link href={feature.href} className="flex h-full flex-col gap-1 rounded-xl bg-card/10 p-4 hover:bg-card/20">
