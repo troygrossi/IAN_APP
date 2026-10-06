@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Follow-up: the live site reaches its database
+
+**Summary:** https://harvest-the-wheel.vercel.app is up with its Supabase database connected, and the deploy pipeline's three jobs all pass. The tables `users`, `sessions` and `notes` exist in Supabase.
+
+**Why:** The first deploys said "password authentication failed".
+
+**What changed:** Nothing in the code. Ian reset the Supabase database password and saved it in GitHub and in Vercel; Vercel needed a rebuild to pick it up. Also: Vercel's Framework Preset was "Other", which made the first build fail with "No Output Directory named public" (DEPLOY.md, "When a deploy fails", item 5); it is now Next.js.
+
+**What was rejected:** none
+
+**Checked:** `/api/health` on the live site says the database is connected; GitHub's "Update the live database" and "Confirm the live site" jobs pass; Supabase lists the three tables. **Not checked:** signing up on the live site; Ian does that with his own account.
+
+**Docs updated:** backlog (Row Level Security).
+
+**Handoff:** Supabase warns that Row Level Security is off on all three tables. The app is not exposed (it never uses Supabase's public key), but a migration that turns it on is the safe default; it waits for Ian's yes.
+
 ## 2026-10-05 — Ian's and Troy's repositories stay in sync
 
 **Summary:** Sync and Publish now keep `develop` the same in Ian's repository and Troy's. Sync brings in Troy's work; Publish brings it in, then sends to both. Deploy still only moves Ian's live site.
