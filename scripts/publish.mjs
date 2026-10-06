@@ -7,12 +7,13 @@
  * It does not change the live site; that is `npm run deploy`.
  * The workflow is described in docs/rules/WORKFLOW.md.
  *
- * In order: check the code, save a version, get anything new from GitHub, send.
+ * In order: check the code, save a version, get anything new from GitHub (both copies), send
+ * to your GitHub, then to the partner's copy (upstream) too.
  * It stops at the first problem and says what to do next.
  */
 import { execSync } from "node:child_process";
 import { ROOT } from "./lib/report.mjs";
-import { LIVE_BRANCH, WORK_BRANCH, done, git, hasRemoteBranch, note, pullWorkBranch, refreshLiveBranch, requireWorkBranch, step, stop } from "./lib/git.mjs";
+import { LIVE_BRANCH, WORK_BRANCH, done, git, hasRemoteBranch, mergePartnerWorkBranch, note, pullWorkBranch, refreshLiveBranch, requireWorkBranch, sendWorkBranchToPartner, step, stop } from "./lib/git.mjs";
 
 const message = process.argv.slice(2).join(" ").trim();
 
@@ -44,7 +45,9 @@ if (!git(["rev-parse", "--verify", "--quiet", "HEAD"]).ok) stop("There is nothin
 
 step("3. Getting anything new from GitHub");
 const received = pullWorkBranch();
-note(received > 0 ? `Brought in ${received} change(s) from GitHub` : "Nothing new");
+// The partner's copy too, so what is sent below already contains their work (docs/decisions/10-keep-both-repositories-in-sync.md).
+const fromPartner = mergePartnerWorkBranch();
+note(received + fromPartner > 0 ? `Brought in ${received + fromPartner} change(s) from GitHub` : "Nothing new");
 
 step("4. Sending to GitHub");
 if (!git(["push", "--set-upstream", "origin", WORK_BRANCH], { show: true }).ok) {
@@ -56,5 +59,6 @@ if (!hasRemoteBranch(LIVE_BRANCH) && git(["push", "origin", `${WORK_BRANCH}:${LI
   note(`First publish: created ${LIVE_BRANCH} on GitHub`);
 }
 refreshLiveBranch();
+sendWorkBranchToPartner();
 
 done("Published (saved to GitHub)", "npm run deploy   when you want these changes on the live site (deploy to Vercel)");

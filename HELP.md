@@ -168,7 +168,7 @@ There are three words, and each is one command. The full rules are in [docs/rule
 
 What to write after `npm run publish --`: a few plain words about what changed, in quotes. "Add a phone number to the sign-up form".
 
-**Two GitHub addresses.** `origin` is your repository, Harvestthewheel/Harvest-The-Wheel: Sync, Publish and Deploy all use it, and Vercel watches it. `upstream` is Troy's original, troygrossi/IAN_APP, and it is read-only from here: nothing can be sent to it. To bring in a change Troy makes there, ask Claude: "bring in Troy's latest changes from upstream". Then Publish (save to GitHub) as usual. Why it is set up this way: [decision 07](docs/decisions/07-own-repository-with-upstream.md).
+**Two GitHub addresses, kept the same.** `origin` is your repository, Harvestthewheel/Harvest-The-Wheel: Vercel builds the live site from it, and Deploy (deploy to Vercel) only ever moves its `main`. `upstream` is Troy's copy, troygrossi/IAN_APP. Sync (get the latest from GitHub) also brings in Troy's `develop`, and Publish (save to GitHub) brings it in and then sends your `develop` to both. If Publish says the partner's copy did not accept it, your work is still saved on your GitHub; see [decision 10](docs/decisions/10-keep-both-repositories-in-sync.md).
 
 **First time only:** the project needs an address on GitHub, and Vercel needs to be connected to it. The steps are in [docs/setup/DEPLOY.md](docs/setup/DEPLOY.md).
 

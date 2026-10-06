@@ -1,5 +1,7 @@
 # 07 — Ian's own repository, with Troy's as a read-only upstream
 
+Replaced by [10](10-keep-both-repositories-in-sync.md).
+
 | | |
 | --- | --- |
 | Decided | 2026-10-05 |

@@ -15,6 +15,7 @@ These need his own accounts and passwords, so only he can do them. The steps are
 
 ## Needs Troy (nobody else can do these)
 
+- [ ] Add **Harvestthewheel** as a collaborator (write) on troygrossi/IAN_APP, so Publish (save to GitHub) can send to both copies ([decision 10](../decisions/10-keep-both-repositories-in-sync.md))
 - [ ] Put `DATABASE_URL` in `.env.local` (`npm run help -- 5`), then run `npm run db:migrate`
 - [ ] Add `DATABASE_URL` in Vercel (Settings → Environment Variables) and as a GitHub secret ([DEPLOY.md](../setup/DEPLOY.md), part 3)
 - [ ] Decide whether the GitHub repository should be private (it is public)
@@ -32,7 +33,6 @@ These need his own accounts and passwords, so only he can do them. The steps are
 - [ ] Trade entry: a table for The Harvester's trades, a service, an API route and hooks, so Positions and Alerts show real data instead of `src/lib/wheel/sample-data.ts`
 - [ ] Live prices for the Core Four and the DRIP watchlist, from a market data service
 - [ ] Send alerts by email or to a phone when a trade is entered
-- [ ] A command (and double-click file) that brings in Troy's latest changes from `upstream` ([decision 07](../decisions/07-own-repository-with-upstream.md))
 
 ## Later
 

@@ -83,6 +83,8 @@ See the runs at https://github.com/Harvestthewheel/Harvest-The-Wheel/actions. A 
 
 **Never work on `main`, never switch to it, never send to it directly.** Only `npm run deploy` moves it.
 
+**Keep both copies of `develop` the same.** The project lives in two GitHub repositories: `origin` (Ian's) and `upstream` (Troy's). `npm run sync` and `npm run publish` merge in Troy's `develop`, and Publish (save to GitHub) sends `develop` to both. Never bring in his work with a rebase, and never send to his `main`. ([decision 10](../decisions/10-keep-both-repositories-in-sync.md))
+
 **Never rewrite published history.** No `git push --force`, no `git reset --hard` on published versions, no rebase of versions that are on GitHub. Fix a mistake with a new version.
 
 **Never skip the check.** `npm run publish` runs `npm run check` first. If it fails, fix the cause; do not work around it.

@@ -60,3 +60,55 @@ export function pullWorkBranch() {
 export function refreshLiveBranch() {
   if (hasRemoteBranch(LIVE_BRANCH)) git(["fetch", "origin", `${LIVE_BRANCH}:${LIVE_BRANCH}`]);
 }
+
+// ---- the partner's copy (upstream) -----------------------------------------
+// Ian's repository is `origin`; Troy's is `upstream`. Both keep the same develop:
+// Sync and Publish bring Troy's work in, and Publish sends Ian's work to both.
+// Why: docs/decisions/10-keep-both-repositories-in-sync.md
+
+/** The second GitHub copy of the project, kept in step with origin. */
+export const PARTNER = "upstream";
+const hasPartner = () => git(["remote", "get-url", PARTNER]).ok;
+const warnNote = (text) => console.log(paint("yellow", `  ${icons.warn} ${text}`));
+
+/**
+ * Brings the partner's develop into this one. Their versions are already published, so this
+ * is a merge, never a rebase (docs/rules/WORKFLOW.md, "Never rewrite published history").
+ * Returns how many of their versions arrived. Stops, changing nothing, if the two clash.
+ */
+export function mergePartnerWorkBranch() {
+  if (!hasPartner()) return 0;
+  if (!git(["fetch", PARTNER]).ok) {
+    warnNote(`Could not reach the partner's copy (${PARTNER}), so their changes were not brought in this time`);
+    return 0;
+  }
+  const theirs = `${PARTNER}/${WORK_BRANCH}`;
+  if (!git(["rev-parse", "--verify", "--quiet", `refs/remotes/${theirs}`]).ok) return 0;
+  const arriving = count(`HEAD..${theirs}`);
+  if (arriving === 0) return 0;
+  if (!git(["merge", "--no-edit", "--autostash", theirs]).ok) {
+    git(["merge", "--abort"]);
+    stop(`The partner's copy (${PARTNER}) has changes that clash with yours. Nothing was changed.`, `Ask Claude: "help me bring in the changes from ${PARTNER}"`);
+  }
+  return arriving;
+}
+
+/**
+ * Sends develop to the partner's copy too. It never stops the command: by now the work is
+ * already safe on origin, and the partner's copy only needs to catch up.
+ */
+export function sendWorkBranchToPartner() {
+  if (!hasPartner()) return;
+  const address = git(["remote", "get-url", "--push", PARTNER]).out;
+  // An address made deliberately unusable (decision 07 set it to "DISABLED-pull-only") means read-only.
+  if (!address || address.startsWith("DISABLED")) {
+    warnNote(`Not sent to the partner's copy (${PARTNER}): it is set to read-only on this computer`);
+    return;
+  }
+  if (git(["push", PARTNER, `${WORK_BRANCH}:${WORK_BRANCH}`]).ok) {
+    note(`Also sent to the partner's copy (${PARTNER})`);
+  } else {
+    warnNote(`The partner's copy (${PARTNER}) did not accept it. Your work is saved on your own GitHub.`);
+    warnNote(`Either they have newer changes (run npm run sync, then publish again), or this GitHub account cannot write to their copy yet (ask them to add it as a collaborator)`);
+  }
+}

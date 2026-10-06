@@ -31,6 +31,25 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Ian's and Troy's repositories stay in sync
+
+**Summary:** Sync and Publish now keep `develop` the same in Ian's repository and Troy's. Sync brings in Troy's work; Publish brings it in, then sends to both. Deploy still only moves Ian's live site.
+
+**Why:** Ian's interface work had not reached Troy's copy. Ian asked for a rule that keeps the two synced, and for his work to go to Troy's copy too.
+
+**What changed:**
+- `scripts/lib/git.mjs`: `mergePartnerWorkBranch()` (a merge, never a rebase) and `sendWorkBranchToPartner()` (never stops a publish). `npm run sync` and `npm run publish` call them.
+- `upstream` on Ian's computer can now be sent to (it was read-only).
+- Decision 10 replaces decision 07. WORKFLOW.md has the rule; HELP.md says what the two addresses are.
+
+**What was rejected:** A fork with pull requests, and syncing `main` (decision 10).
+
+**Checked:** `npm run check` passes. Sync and Publish were run against two practice copies on a test computer: Sync merged a change made in the "Troy" copy, and Publish sent the result to both copies, which then matched. **Not checked:** sending to Troy's real repository: Ian's GitHub account can only read it today.
+
+**Docs updated:** HELP.md, WORKFLOW.md, decisions 07 (marked replaced) and 10, backlog.
+
+**Handoff:** Troy adds Harvestthewheel as a collaborator on troygrossi/IAN_APP. The next Publish then sends Ian's work there. Troy's repository is public: anything sent to it can be read by anyone.
+
 ## 2026-10-05 — Brought in Troy's sign-in hardening
 
 **Summary:** Troy's "Sign-in security" version from `upstream` is now in Ian's project, and the four new Harvest the Wheel pages follow its new rule.
