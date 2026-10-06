@@ -39,6 +39,11 @@ const GLOSSARY = [
     meaning: "When an option you sold is used: a put hands you the shares, a call takes them away.",
   },
   {
+    term: "Roll (rolling a position)",
+    meaning:
+      "Closing an option you sold by buying it back, and selling a new one on the same stock in the same trade, usually with a later expiry and often a different strike. It is used to avoid assignment or being called away, or to give a trade more time. A roll for a net credit brings in more premium; a roll for a net debit costs money. Either way it extends the risk; it does not remove it.",
+  },
+  {
     term: "OTM / ITM",
     meaning:
       "Out of the money: the option would not be used at today's price. In the money: it would. An option still OTM at expiry expires worthless.",

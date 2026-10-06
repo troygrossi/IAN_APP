@@ -31,6 +31,22 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — "Roll" added to Words you will see
+
+**Summary:** The Learn glossary now explains rolling a position. Buying back a sold option and selling a new one in the same trade, usually later and often at a different strike. It covers why the trade is made, net credit vs net debit, and that rolling extends the risk rather than removing it.
+
+**Why:** Ian asked for it.
+
+**What changed:** `GLOSSARY` in `src/app/(app)/dashboard/learn/page.tsx`, placed after Assignment.
+
+**What was rejected:** none.
+
+**Checked:** `npm run check` passes.
+
+**Docs updated:** this log.
+
+**Handoff:** Trades don't record rolls yet. When one happens, it can be entered as a buy-to-close plus a new sell, once trade entry supports closing early.
+
 ## 2026-10-06 — "No idle cash" rule now checks technicals first
 
 **Summary:** The fourth of The Harvester's rules on the Learn page now matches Ian's updated rule:
