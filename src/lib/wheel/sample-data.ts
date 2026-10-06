@@ -1,4 +1,4 @@
-// PLACEHOLDER: sample data, copied from The Harvester's tracker as of 2026-10-05.
+// PLACEHOLDER: sample data, copied from The Harvester's tracker and Schwab trade alerts as of 2026-10-06.
 // It is not live. Every screen that shows it carries a PlaceholderNotice (CLAUDE.md, rule 8).
 // When trade entry is built, this file is replaced by a table, a service and hooks
 // on the path in docs/rules/DATA_FLOW.md, and the screens read from those instead.
@@ -22,7 +22,7 @@ export const TICKERS: TickerInfo[] = [
   { ticker: "MARA", name: "Marathon Digital", priceUsd: 11.18, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
   { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 15.28, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
   { ticker: "IONQ", name: "IonQ", priceUsd: 43.75, nextEarnings: "Nov 4", next: null },
-  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 15.64, nextEarnings: "Nov 2", next: "Waiting for a good strike to sell covered calls." },
+  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 15.64, nextEarnings: "Nov 2", next: "Covered calls on all 1,000 shares until Oct 16, before earnings on Nov 2." },
 ];
 
 /** Oldest first. The September trades are the puts still open on Oct 1. */
@@ -40,6 +40,7 @@ export const TRADES: Trade[] = [
   { id: "t09", date: "2026-10-02", ticker: "CIFR", type: "assigned", closes: "t04" },
   { id: "t10", date: "2026-10-05", ticker: "IONQ", type: "sell-put", count: 2, strikeUsd: 42, expires: "2026-10-16", premiumUsd: 272 },
   { id: "t11", date: "2026-10-05", ticker: "MARA", type: "sell-put", count: 5, strikeUsd: 10.5, expires: "2026-10-16", premiumUsd: 185 },
+  { id: "t12", date: "2026-10-06", ticker: "CIFR", type: "sell-call", count: 10, strikeUsd: 16.5, expires: "2026-10-16", premiumUsd: 570 },
 ];
 
 export const CORE_FOUR = TICKERS.map((info) => positionFor(info, TRADES));

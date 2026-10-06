@@ -31,6 +31,23 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — Oct 6 trade: CIFR covered calls
+
+**Summary:** Added today's Roth trade on the Core Four: 10 CIFR $16.50 calls, Oct 16 expiry, $0.57 each ($570), covering all 1,000 Roth shares. CIFR moves to "Selling calls". Its blended cost after premium drops from $16.46 to $15.89. The trade shows on Alerts and Trades.
+
+**Why:** Ian asked to add today's trades from his trade log.
+
+**What changed:**
+- Trade `t12` and CIFR's next step in `src/lib/wheel/sample-data.ts`.
+
+**What was rejected:** The 3 RGTI $15.50 calls sold today (Oct 16 expiry, $0.54 each, $162). They are in the brokerage account (Schwab confirms identify the accounts), and the app shows the Roth account only.
+
+**Checked:** `npm run check` passes. Trade details read from Schwab's "trade executed" emails of Oct 6. The four CIFR fills (2 + 4 + 1 + 3 contracts at $0.57) are one trade here.
+
+**Docs updated:** this log.
+
+**Handoff:** Fees are not counted (about $0.66 per contract at Schwab); premiums are as filled, matching the tracker.
+
 ## 2026-10-06 — Core Four prices refreshed
 
 **Summary:** Core Four prices updated to quotes from Oct 6, 2026, 11:14 am ET:
