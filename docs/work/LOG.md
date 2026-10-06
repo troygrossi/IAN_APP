@@ -31,6 +31,30 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-05 — Getting started replaces Notes in the menu
+
+**Summary:** A new **Getting started** page (`/dashboard/getting-started`) walks through opening a Roth IRA at Charles Schwab and getting approved for options. It has seven steps, IRA rules to know before the first trade, what can go wrong, and links to the IRS, Schwab, OCC and FINRA pages its facts come from. It takes Notes' place in the account menu.
+
+**Why:** Ian asked for a step-by-step Roth IRA plan at Schwab in place of the Notes tab, staying within the law.
+
+**What changed:**
+- `src/app/(app)/dashboard/getting-started/page.tsx` (new).
+- `accountNav` in `src/components/nav/nav-items.ts`.
+- NAVIGATION.md address table.
+
+**What was rejected:** Deleting Notes. It is Troy's example feature, the one HELP.md points to as a model for a whole feature (page → hook → API → service → database). It stays, reachable by its address, just out of the menu. Telling readers which level or broker to pick for their own situation: the page describes the steps and rules and says it is not advice.
+
+**Checked:** `npm run check` passes. Preview at phone and desktop width. Facts checked Oct 5, 2026:
+- 2026 limits ($7,500, $8,600 at 50+) and Roth income ranges ($153k–$168k single, $242k–$252k joint): IRS.
+- 6% excess-contribution tax: IRS.
+- Prohibited transactions end IRA status: IRS.
+- Options Disclosure Document required before approval: FINRA 2360(b)(16).
+- Schwab Level 0 = covered calls; Level 1 adds cash-secured equity puts; uncovered options not allowed in IRAs; apply via Profile → Margin & Options; decision emailed within about three business days: Schwab.
+
+**Docs updated:** NAVIGATION.md, this log.
+
+**Handoff:** The figures change every January. Update them and `FACTS_AS_OF` together at the top of the page file. Worth a once-over by a lawyer before paying users see it.
+
 ## 2026-10-05 — DRIP card on the dashboard
 
 **Summary:** The dashboard's welcome panel has a fourth card, "DRIP for spare cash", linking to `/dashboard/drip`, alongside positions, alerts and learn.

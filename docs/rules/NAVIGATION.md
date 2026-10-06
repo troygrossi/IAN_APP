@@ -16,7 +16,8 @@ Addresses, menus and links.
 | `/dashboard/trades` | Signed in | Trade history: every option sold since the record started, each with its P/L |
 | `/dashboard/drip` | Signed in | What DRIP means, and the DRIP watchlist |
 | `/dashboard/learn` | Signed in | How the wheel works, the rules, the words |
-| `/dashboard/notes` | Signed in | The example feature |
+| `/dashboard/getting-started` | Signed in | Opening a Roth IRA at Schwab and getting options approval, step by step |
+| `/dashboard/notes` | Signed in | The example feature. Not in any menu; open it by its address |
 | `/dashboard/billing` | Signed in | Current plan |
 | `/dashboard/settings` | Signed in | Account |
 | `/api/health` | Everyone | Says whether the app and database are up |

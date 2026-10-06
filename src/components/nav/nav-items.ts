@@ -22,7 +22,7 @@ export const appNav: NavItem[] = [
 
 /** Account pages, shown in the header beside the sign-out button. */
 export const accountNav: NavItem[] = [
-  { href: "/dashboard/notes", label: "Notes" },
+  { href: "/dashboard/getting-started", label: "Getting started" },
   { href: "/dashboard/billing", label: "Billing" },
   { href: "/dashboard/settings", label: "Settings" },
 ];
