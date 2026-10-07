@@ -31,6 +31,27 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-06 — Add to Home Screen on iPhone and Android
+
+**Summary:** The site can be added to a phone's home screen. It gets the wheel icon, is named "Harvest", and opens full screen at the dashboard, without Safari's address bar.
+
+**Why:** Ian asked how to get the app on his iPhone.
+
+**What changed:**
+- `src/app/manifest.ts` (new).
+- `src/app/apple-icon.png` (180 px, picked up by Next.js automatically).
+- `public/icon-192.png` and `public/icon-512.png`.
+- `appleWebApp` in `src/app/layout.tsx`.
+- The icons are the logo mark on cream, drawn from `LogoMark`.
+
+**What was rejected:** An App Store app. It needs an Apple Developer account ($99 a year), a native wrapper and App Review. App Review is strict about financial content. Not worth it before paying users. Push notifications for alerts can come to home-screen web apps on iOS 16.4+ later, without the App Store.
+
+**Checked:** `npm run check` passes. The icon files have extensions, so `src/proxy.ts` lets them through without sign-in.
+
+**Docs updated:** this log.
+
+**Handoff:** To install on an iPhone: Safari → harvest-the-wheel.vercel.app → Share → Add to Home Screen.
+
 ## 2026-10-06 — "Roll" added to Words you will see
 
 **Summary:** The Learn glossary now explains rolling a position. Buying back a sold option and selling a new one in the same trade, usually later and often at a different strike. It covers why the trade is made, net credit vs net debit, and that rolling extends the risk rather than removing it.

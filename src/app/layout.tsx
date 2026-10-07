@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   title: { default: "Harvest the Wheel", template: "%s · Harvest the Wheel" },
   description:
     "Follow The Harvester's options wheel trades on the Core Four, as they happen. Learn how the wheel works. For education, not financial advice.",
+  // Added to an iPhone home screen, the site opens full screen under this name (see src/app/manifest.ts).
+  appleWebApp: { capable: true, title: "Harvest", statusBarStyle: "default" },
 };
 
 // viewportFit "cover" lets the phone tab bar sit above the home indicator (docs/rules/UI.md).
