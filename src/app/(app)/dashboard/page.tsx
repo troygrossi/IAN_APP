@@ -2,7 +2,10 @@ import Link from "next/link";
 import { PlaceholderNotice } from "@/components/ui/placeholder-notice";
 import { Disclaimer } from "@/components/wheel/disclaimer";
 import { formatUsd } from "@/lib/wheel/format";
-import { CORE_FOUR, RECORD_START_LABEL, SAMPLE_AS_OF } from "@/lib/wheel/sample-data";
+import { PriceSource } from "@/components/wheel/price-source";
+import { coreFourPrices } from "@/lib/services/prices";
+import { positionFor } from "@/lib/wheel/ledger";
+import { RECORD_START_LABEL, TRADES } from "@/lib/wheel/sample-data";
 import { PositionCard } from "./position-card";
 import { requirePageSession } from "@/lib/auth/session";
 
@@ -33,8 +36,10 @@ const FEATURES = [
 
 export default async function DashboardPage() {
   await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
-  const premiumUsd = CORE_FOUR.reduce((sum, position) => sum + position.premiumUsd, 0);
-  const openContracts = CORE_FOUR.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
+  const prices = await coreFourPrices();
+  const coreFour = prices.tickers.map((info) => positionFor(info, TRADES));
+  const premiumUsd = coreFour.reduce((sum, position) => sum + position.premiumUsd, 0);
+  const openContracts = coreFour.flatMap((position) => position.open).reduce((sum, contract) => sum + contract.count, 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -63,7 +68,9 @@ export default async function DashboardPage() {
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="text-xl font-bold tracking-tight">The Harvester&rsquo;s Core Four</h2>
-            <p className="text-sm text-muted-foreground">As of {SAMPLE_AS_OF}</p>
+            <p className="text-sm text-muted-foreground">
+              {prices.live ? "Live prices" : "Snapshot prices"} · {prices.asOf}
+            </p>
           </div>
           <dl className="flex gap-6 text-sm">
             <div>
@@ -77,12 +84,11 @@ export default async function DashboardPage() {
           </dl>
         </div>
         <PlaceholderNotice>
-          Sample positions copied from The Harvester&rsquo;s tracker, with prices from {SAMPLE_AS_OF}. The record starts on{" "}
-          {RECORD_START_LABEL}: options open that day count, earlier trades do not. Live positions appear here once trade entry
-          is built.
+          Trades are copied by hand from The Harvester&rsquo;s tracker until trade entry is built. <PriceSource prices={prices} />{" "}
+          The record starts on {RECORD_START_LABEL}: options open that day count, earlier trades do not.
         </PlaceholderNotice>
         <div className="grid gap-4 sm:grid-cols-2">
-          {CORE_FOUR.map((position) => (
+          {coreFour.map((position) => (
             <PositionCard key={position.ticker} position={position} />
           ))}
         </div>

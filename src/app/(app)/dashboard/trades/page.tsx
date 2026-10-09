@@ -5,7 +5,9 @@ import { Disclaimer } from "@/components/wheel/disclaimer";
 import { requirePageSession } from "@/lib/auth/session";
 import { formatPrice, formatSignedUsd } from "@/lib/wheel/format";
 import { blendedCosts, tradeHistory, type BlendedCost, type TradeResult } from "@/lib/wheel/ledger";
-import { RECORD_START_LABEL, SAMPLE_AS_OF, TICKERS, TRADES } from "@/lib/wheel/sample-data";
+import { PriceSource } from "@/components/wheel/price-source";
+import { coreFourPrices } from "@/lib/services/prices";
+import { RECORD_START_LABEL, TRADES } from "@/lib/wheel/sample-data";
 
 export const metadata = { title: "Trades" };
 
@@ -95,8 +97,9 @@ function BlendedCostCard({ stock }: { stock: BlendedCost }) {
 
 export default async function TradesPage() {
   await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
-  const history = tradeHistory(TICKERS, TRADES);
-  const blended = blendedCosts(TICKERS, TRADES);
+  const prices = await coreFourPrices();
+  const history = tradeHistory(prices.tickers, TRADES);
+  const blended = blendedCosts(prices.tickers, TRADES);
   const profitUsd = history.reduce((sum, t) => sum + t.profitUsd, 0);
   const premiumUsd = history.reduce((sum, t) => sum + t.premiumUsd, 0);
   const sharesUsd = history.reduce((sum, t) => sum + (t.shares?.resultUsd ?? 0), 0);
@@ -108,7 +111,7 @@ export default async function TradesPage() {
         <h1 className="text-2xl font-bold tracking-tight">Trade history</h1>
         <p className="text-muted-foreground">
           Every option The Harvester sold since {RECORD_START_LABEL}, newest first, each with its own P/L. Prices as of{" "}
-          {SAMPLE_AS_OF}.
+          {prices.asOf}.
         </p>
       </div>
 
@@ -134,8 +137,8 @@ export default async function TradesPage() {
       </section>
 
       <PlaceholderNotice>
-        Sample trades copied from The Harvester&rsquo;s tracker, with prices from {SAMPLE_AS_OF}. Live prices and trade entry
-        are not built yet.
+        Trades are copied by hand from The Harvester&rsquo;s tracker until trade entry is built.{" "}
+        <PriceSource prices={prices} />
       </PlaceholderNotice>
 
       <section className="flex flex-col gap-3" aria-labelledby="blended-cost">

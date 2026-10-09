@@ -30,6 +30,8 @@ export type TickerInfo = {
   ticker: string;
   name: string;
   priceUsd: number;
+  /** The 50-day moving average, when known. The Harvester waits while the price is below it before a new put. */
+  avg50Usd?: number;
   nextEarnings: string;
   /** What The Harvester is waiting to do next, in plain words, if anything. */
   next: string | null;

@@ -31,6 +31,32 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-09 — Live Core Four prices
+
+**Summary:** Dashboard, Trades and the wheel cycle pages now price the Core Four live from Financial Modeling Prep, refreshed at most every 5 minutes. P/L, blended-cost colors and annual return follow. Each Core Four card also shows the 50-day moving average and whether the price is above or below it (Ian's "check technicals first" rule). Without `FMP_API_KEY`, or if FMP fails, pages use the snapshot (now Oct 9, 12:05 PM ET) and say "Snapshot prices".
+
+**Why:** Ian asked for live prices.
+
+**What changed:**
+- `src/lib/services/prices.ts` (new).
+- `FMP_API_KEY` in `env.ts` and `.env.example`.
+- `avg50Usd` on `TickerInfo`.
+- `PriceSource` component.
+- Dashboard, Trades and wheel pages read `coreFourPrices()`.
+- `CORE_FOUR` removed from sample-data, since pages price it themselves.
+- Decision 11; DATA_FLOW.md known gaps; DEPLOY.md; BACKLOG.
+
+**What was rejected:** See decision 11 (browser-side API, scheduled saves, hand updates).
+
+**Checked:**
+- `npm run check` passes.
+- Preview with no key shows the snapshot wording.
+- Not checked with a real key: Ian adds `FMP_API_KEY` in Vercel himself.
+
+**Docs updated:** decision 11, DATA_FLOW.md, DEPLOY.md, BACKLOG.md, this log.
+
+**Handoff:** Ian: add `FMP_API_KEY` in Vercel (Production) and redeploy. For local live prices, add it to `.env.local`. The DRIP watchlist is still a snapshot.
+
 ## 2026-10-06 — Add to Home Screen on iPhone and Android
 
 **Summary:** The site can be added to a phone's home screen. It gets the wheel icon, is named "Harvest", and opens full screen at the dashboard, without Safari's address bar.

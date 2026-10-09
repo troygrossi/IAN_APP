@@ -31,7 +31,9 @@ These need his own accounts and passwords, so only he can do them. The steps are
 - [ ] Confirm `npm run db:migrate` works through Supabase's Transaction pooler address. It has only been run against a local database; the Session pooler address may be needed
 
 - [ ] Trade entry: a table for The Harvester's trades, a service, an API route and hooks, so Positions and Alerts show real data instead of `src/lib/wheel/sample-data.ts`
-- [ ] Live prices for the Core Four and the DRIP watchlist, from a market data service
+- [x] Live prices for the Core Four, from Financial Modeling Prep ([decision 11](../decisions/11-live-prices.md))
+- [ ] Live prices and trend status for the DRIP watchlist
+- [ ] Check FMP's terms for showing its prices to paying users, before Billing goes live
 - [ ] Send alerts by email or to a phone when a trade is entered
 
 ## Later

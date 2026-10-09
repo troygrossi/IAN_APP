@@ -43,6 +43,7 @@ What those words mean, and the daily routine, are in [WORKFLOW.md](../rules/WORK
 3. Open **Environment Variables** and add each setting from your `.env.local`:
    - `DATABASE_URL`: the Supabase **Transaction pooler** address, with your database password in it. Not the address in your `.env.local`: that one points at your own computer, which Vercel cannot reach.
    - `NEXT_PUBLIC_APP_URL`: the address Vercel gives the site, for example `https://your-app.vercel.app`.
+   - `FMP_API_KEY` (optional): your Financial Modeling Prep API key, for live prices. Without it the site shows its price snapshot.
 4. Press Vercel's **Deploy** button. This first build takes about two minutes.
 5. In the Vercel project, open **Settings → Environments → Production** and check that the branch is `main`.
 6. Open the address Vercel shows. Then open `/api/health` on it; it should say the database is connected.

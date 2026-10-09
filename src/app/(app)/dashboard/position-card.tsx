@@ -6,7 +6,7 @@ import { WHEEL_PHASES, type Position } from "@/lib/wheel/ledger";
 
 /** One Core Four ticker: where it sits in the wheel, its price, shares held, and what is open on it. */
 export function PositionCard({ position }: { position: Position }) {
-  const { ticker, name, phase, priceUsd, premiumUsd, shares, open, next, nextEarnings } = position;
+  const { ticker, name, phase, priceUsd, avg50Usd, premiumUsd, shares, open, next, nextEarnings } = position;
   const phaseLabel = phase ? WHEEL_PHASES.find((step) => step.id === phase)?.label : undefined;
 
   return (
@@ -34,6 +34,18 @@ export function PositionCard({ position }: { position: Position }) {
             {formatUsd(premiumUsd)}
           </dd>
         </div>
+        {avg50Usd !== undefined && (
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">50-day average</dt>
+            <dd className="text-base font-semibold">
+              {formatPrice(avg50Usd)}
+              <span className={`text-sm font-medium ${priceUsd >= avg50Usd ? "text-success" : "text-danger"}`}>
+                {" "}
+                · price {priceUsd >= avg50Usd ? "above" : "below"} {priceUsd >= avg50Usd ? "▲" : "▼"}
+              </span>
+            </dd>
+          </div>
+        )}
         {shares && (
           <div className="col-span-2">
             <dt className="text-muted-foreground">Shares held</dt>

@@ -3,12 +3,12 @@
 // When trade entry is built, this file is replaced by a table, a service and hooks
 // on the path in docs/rules/DATA_FLOW.md, and the screens read from those instead.
 
-import { alertsFrom, positionFor, type TickerInfo, type Trade } from "./ledger";
+import { alertsFrom, type TickerInfo, type Trade } from "./ledger";
 
-/** When the Core Four prices were taken, shown on screen beside them. */
-export const SAMPLE_AS_OF = "Oct 6, 2026, 11:14 am ET";
+/** When the snapshot prices were taken. Used when live prices are not available (src/lib/services/prices.ts). */
+export const SAMPLE_AS_OF = "Oct 9, 2026, 12:05 PM ET";
 /** The same moment as a date, for working out how many days a cycle has run. */
-export const SAMPLE_AS_OF_ISO = "2026-10-06";
+export const SAMPLE_AS_OF_ISO = "2026-10-09";
 
 /** When the DRIP watchlist statuses were taken. They are refreshed separately from the Core Four prices. */
 export const DRIP_AS_OF = "Oct 5, 2026";
@@ -21,10 +21,10 @@ export const RECORD_START = "2026-10-01";
 export const RECORD_START_LABEL = "Oct 1, 2026";
 
 export const TICKERS: TickerInfo[] = [
-  { ticker: "MARA", name: "Marathon Digital", priceUsd: 11.18, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
-  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 15.28, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
-  { ticker: "IONQ", name: "IonQ", priceUsd: 43.75, nextEarnings: "Nov 4", next: null },
-  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 15.64, nextEarnings: "Nov 2", next: "Covered calls on all 1,000 shares until Oct 16, before earnings on Nov 2." },
+  { ticker: "MARA", name: "Marathon Digital", priceUsd: 9.69, avg50Usd: 11.19, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
+  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 13.86, avg50Usd: 16.17, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
+  { ticker: "IONQ", name: "IonQ", priceUsd: 39.32, avg50Usd: 41.25, nextEarnings: "Nov 4", next: null },
+  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 13.36, avg50Usd: 17.11, nextEarnings: "Nov 2", next: "Covered calls on all 1,000 shares until Oct 16, before earnings on Nov 2." },
 ];
 
 /** Oldest first. The September trades are the puts still open on Oct 1. */
@@ -45,7 +45,6 @@ export const TRADES: Trade[] = [
   { id: "t12", date: "2026-10-06", ticker: "CIFR", type: "sell-call", count: 10, strikeUsd: 16.5, expires: "2026-10-16", premiumUsd: 570 },
 ];
 
-export const CORE_FOUR = TICKERS.map((info) => positionFor(info, TRADES));
 export const ALERTS = alertsFrom(TRADES, RECORD_START);
 
 export type DripFund = {

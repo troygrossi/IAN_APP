@@ -46,4 +46,4 @@ Each layer talks only to the one next to it.
 
 ## Known gaps
 
-None.
+One exception, on purpose: the Core Four pages read live prices straight from `src/lib/services/prices.ts` on the server, without a route or hook ([decision 11](../decisions/11-live-prices.md)).

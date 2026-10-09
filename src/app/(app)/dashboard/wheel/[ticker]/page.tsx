@@ -6,8 +6,10 @@ import { CycleSteps } from "@/components/wheel/cycle-steps";
 import { Disclaimer } from "@/components/wheel/disclaimer";
 import { requirePageSession } from "@/lib/auth/session";
 import { formatPrice, formatSignedUsd, formatUsd } from "@/lib/wheel/format";
-import { wheelCycles, type CycleStep, type WheelCycle } from "@/lib/wheel/ledger";
-import { CORE_FOUR, RECORD_START_LABEL, SAMPLE_AS_OF, SAMPLE_AS_OF_ISO, TICKERS, TRADES } from "@/lib/wheel/sample-data";
+import { PriceSource } from "@/components/wheel/price-source";
+import { coreFourPrices } from "@/lib/services/prices";
+import { positionFor, wheelCycles, type CycleStep, type WheelCycle } from "@/lib/wheel/ledger";
+import { RECORD_START_LABEL, TICKERS, TRADES } from "@/lib/wheel/sample-data";
 
 type Props = { params: Promise<{ ticker: string }> };
 
@@ -153,11 +155,12 @@ export default async function WheelCyclePage({ params }: Props) {
   await requirePageSession(); // docs/rules/AUTH.md: every page in (app) is its own gate
   const { ticker: raw } = await params;
   const ticker = raw.toUpperCase();
-  const info = TICKERS.find((t) => t.ticker === ticker);
-  if (!info) notFound();
+  if (!TICKERS.some((t) => t.ticker === ticker)) notFound();
   if (raw !== ticker) redirect(`/dashboard/wheel/${ticker}`); // one address per stock
-  const position = CORE_FOUR.find((p) => p.ticker === ticker);
-  const cycles = wheelCycles(info, TRADES, SAMPLE_AS_OF_ISO).reverse();
+  const prices = await coreFourPrices();
+  const info = prices.tickers.find((t) => t.ticker === ticker)!;
+  const position = positionFor(info, TRADES);
+  const cycles = wheelCycles(info, TRADES, prices.asOfIso).reverse();
 
   return (
     <div className="flex flex-col gap-6">
@@ -180,14 +183,14 @@ export default async function WheelCyclePage({ params }: Props) {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h1 className="text-2xl font-bold tracking-tight">{ticker} wheel cycle</h1>
           <p className="text-sm text-muted-foreground">
-            {info.name} · {formatPrice(info.priceUsd)} as of {SAMPLE_AS_OF}
+            {info.name} · {formatPrice(info.priceUsd)} {prices.live ? "live" : "snapshot"} · {prices.asOf}
           </p>
         </div>
-        {position?.phase && <CycleSteps phase={position.phase} />}
+        {position.phase && <CycleSteps phase={position.phase} />}
       </div>
 
       <PlaceholderNotice>
-        Sample trades copied from The Harvester&rsquo;s tracker since {RECORD_START_LABEL}, with prices from {SAMPLE_AS_OF}.
+        Trades are copied by hand from The Harvester&rsquo;s tracker since {RECORD_START_LABEL}. <PriceSource prices={prices} />
       </PlaceholderNotice>
 
       {cycles.length === 0 ? (
