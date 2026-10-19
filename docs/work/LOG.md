@@ -31,6 +31,42 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-19 — Oct 16 expiry: assignments and expiry recorded; prices to Oct 19
+
+**Summary:** Added the Roth account's trades since Oct 6, from Schwab's confirmations and assignment notices:
+- MARA $11.50 puts (9) assigned 1 on Oct 12, 5 on Oct 14 and 3 on Oct 15.
+- MARA $10.50 puts (5) assigned Oct 15.
+- IONQ $42 puts (2) assigned Oct 14.
+- CIFR $16.50 calls (10) expired Oct 16.
+
+No new options were sold in the Roth account since Oct 6. Snapshot prices are now Oct 19, 10:53 AM ET:
+
+| | MARA | RGTI | IONQ | CIFR |
+| --- | --- | --- | --- | --- |
+| Price | $7.72 | $11.84 | $30.97 | $9.32 |
+| 50-day average | $10.87 | $15.76 | $40.76 | $15.92 |
+
+**Why:** Ian asked for all new trades with current prices.
+
+**What changed:**
+- Assignments can now cover only some of an option's contracts (`count` on "assigned" and "called-away"), since Schwab assigned the MARA $11.50 puts early in three parts. `closings()` in `src/lib/wheel/ledger.ts` works out each closing's contracts and when an option is fully closed.
+- Positions, alerts, trade history (lots added up per put), blended cost and wheel cycles use it.
+- Trades t13–t18 and each stock's next step in sample-data.
+
+**What was rejected:** Recording the three MARA $11.50 assignments as one on Oct 15: it would hide the early assignments and their dates.
+
+**Checked:**
+- `npm run check` passes.
+- MARA holds 1,800 shares at $11.56 average ($11.04 after premium).
+- The 9 + 5 MARA contracts add up to 1,400 assigned shares.
+- Not confirmed by email: the CIFR calls expiring. Schwab sends nothing for an option that expires unused. CIFR was far below $16.50 and no assignment or close was sent.
+
+**Docs updated:** this log.
+
+**Handoff:**
+- An open cycle with no open options is annualized over the days since it began. Large unrealized losses give large negative annual returns (MARA −374%).
+- If a fixed way to show that is wanted, consider showing return over the period without annualizing while no option is open.
+
 ## 2026-10-09 — Live Core Four prices
 
 **Summary:** Dashboard, Trades and the wheel cycle pages now price the Core Four live from Financial Modeling Prep, refreshed at most every 5 minutes. P/L, blended-cost colors and annual return follow. Each Core Four card also shows the 50-day moving average and whether the price is above or below it (Ian's "check technicals first" rule). Without `FMP_API_KEY`, or if FMP fails, pages use the snapshot (now Oct 9, 12:05 PM ET) and say "Snapshot prices".

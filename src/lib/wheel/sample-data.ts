@@ -1,4 +1,4 @@
-// PLACEHOLDER: sample data, copied from The Harvester's tracker and Schwab trade alerts as of 2026-10-06.
+// PLACEHOLDER: sample data, copied from The Harvester's tracker and Schwab trade confirmations as of 2026-10-19.
 // It is not live. Every screen that shows it carries a PlaceholderNotice (CLAUDE.md, rule 8).
 // When trade entry is built, this file is replaced by a table, a service and hooks
 // on the path in docs/rules/DATA_FLOW.md, and the screens read from those instead.
@@ -6,9 +6,9 @@
 import { alertsFrom, type TickerInfo, type Trade } from "./ledger";
 
 /** When the snapshot prices were taken. Used when live prices are not available (src/lib/services/prices.ts). */
-export const SAMPLE_AS_OF = "Oct 9, 2026, 12:05 PM ET";
+export const SAMPLE_AS_OF = "Oct 19, 2026, 10:53 AM ET";
 /** The same moment as a date, for working out how many days a cycle has run. */
-export const SAMPLE_AS_OF_ISO = "2026-10-09";
+export const SAMPLE_AS_OF_ISO = "2026-10-19";
 
 /** When the DRIP watchlist statuses were taken. They are refreshed separately from the Core Four prices. */
 export const DRIP_AS_OF = "Oct 5, 2026";
@@ -21,10 +21,10 @@ export const RECORD_START = "2026-10-01";
 export const RECORD_START_LABEL = "Oct 1, 2026";
 
 export const TICKERS: TickerInfo[] = [
-  { ticker: "MARA", name: "Marathon Digital", priceUsd: 9.69, avg50Usd: 11.19, nextEarnings: "Nov 3", next: "Holding the assigned shares and still selling puts below them." },
-  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 13.86, avg50Usd: 16.17, nextEarnings: "Nov 9", next: "Waiting for a good strike to sell covered calls." },
-  { ticker: "IONQ", name: "IonQ", priceUsd: 39.32, avg50Usd: 41.25, nextEarnings: "Nov 4", next: null },
-  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 13.36, avg50Usd: 17.11, nextEarnings: "Nov 2", next: "Covered calls on all 1,000 shares until Oct 16, before earnings on Nov 2." },
+  { ticker: "MARA", name: "Marathon Digital", priceUsd: 7.72, avg50Usd: 10.87, nextEarnings: "Nov 3", next: "All 14 Oct 16 puts were assigned: holding 1,800 shares, no options open yet." },
+  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 11.84, avg50Usd: 15.76, nextEarnings: "Nov 9", next: "Holding 300 shares, no options open yet." },
+  { ticker: "IONQ", name: "IonQ", priceUsd: 30.97, avg50Usd: 40.76, nextEarnings: "Nov 4", next: "The Oct 16 puts were assigned: holding 200 shares, no options open yet." },
+  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 9.32, avg50Usd: 15.92, nextEarnings: "Nov 2", next: "The Oct 16 covered calls expired: holding 1,000 shares, no options open yet." },
 ];
 
 /** Oldest first. The September trades are the puts still open on Oct 1. */
@@ -43,6 +43,13 @@ export const TRADES: Trade[] = [
   { id: "t10", date: "2026-10-05", ticker: "IONQ", type: "sell-put", count: 2, strikeUsd: 42, expires: "2026-10-16", premiumUsd: 272 },
   { id: "t11", date: "2026-10-05", ticker: "MARA", type: "sell-put", count: 5, strikeUsd: 10.5, expires: "2026-10-16", premiumUsd: 185 },
   { id: "t12", date: "2026-10-06", ticker: "CIFR", type: "sell-call", count: 10, strikeUsd: 16.5, expires: "2026-10-16", premiumUsd: 570 },
+  // Oct 16 expiry: every put assigned (some early), the CIFR calls expired. From Schwab's confirmations.
+  { id: "t13", date: "2026-10-12", ticker: "MARA", type: "assigned", closes: "t05", count: 1 },
+  { id: "t14", date: "2026-10-14", ticker: "IONQ", type: "assigned", closes: "t10" },
+  { id: "t15", date: "2026-10-14", ticker: "MARA", type: "assigned", closes: "t05", count: 5 },
+  { id: "t16", date: "2026-10-15", ticker: "MARA", type: "assigned", closes: "t05" },
+  { id: "t17", date: "2026-10-15", ticker: "MARA", type: "assigned", closes: "t11" },
+  { id: "t18", date: "2026-10-16", ticker: "CIFR", type: "expired", closes: "t12" },
 ];
 
 export const ALERTS = alertsFrom(TRADES, RECORD_START);

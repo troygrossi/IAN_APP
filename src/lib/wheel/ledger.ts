@@ -15,15 +15,39 @@ export const WHEEL_PHASES: { id: WheelPhase; label: string }[] = [
 /** One line of the record. Dates are YYYY-MM-DD. One contract stands for 100 shares. */
 export type Trade =
   | { id: string; date: string; ticker: string; type: "sell-put" | "sell-call"; count: number; strikeUsd: number; expires: string; premiumUsd: number }
-  /** A sold put was used: the shares are bought at its strike. `closes` is the put's id. */
-  | { id: string; date: string; ticker: string; type: "assigned"; closes: string }
-  /** A sold call was used: the shares are sold at its strike. `closes` is the call's id. */
-  | { id: string; date: string; ticker: string; type: "called-away"; closes: string }
-  /** A sold option ran out unused. `closes` is its id. */
+  /**
+   * A sold put was used: the shares are bought at its strike. `closes` is the put's id.
+   * `count` is how many of its contracts, when only some were assigned (early assignment); leave it out for all the rest.
+   */
+  | { id: string; date: string; ticker: string; type: "assigned"; closes: string; count?: number }
+  /** A sold call was used: the shares are sold at its strike. `closes` is the call's id. `count` as for "assigned". */
+  | { id: string; date: string; ticker: string; type: "called-away"; closes: string; count?: number }
+  /** A sold option ran out unused. `closes` is its id. Covers every contract still open. */
   | { id: string; date: string; ticker: string; type: "expired"; closes: string };
 
 type OptionTrade = Extract<Trade, { type: "sell-put" | "sell-call" }>;
+type ClosingTrade = Exclude<Trade, OptionTrade>;
 const isOption = (trade: Trade): trade is OptionTrade => trade.type === "sell-put" || trade.type === "sell-call";
+const byDate = (a: Trade, b: Trade) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id);
+
+/**
+ * How many contracts each closing trade covers, which closing trade finishes its option,
+ * and how many contracts of each option are still open at the end. Handles options assigned a few contracts at a time.
+ */
+function closings(trades: Trade[]) {
+  const left = new Map(trades.filter(isOption).map((o) => [o.id, o.count]));
+  const contracts = new Map<string, number>();
+  const finishes = new Set<string>();
+  for (const trade of [...trades].sort(byDate)) {
+    if (isOption(trade)) continue;
+    const open = left.get(trade.closes) ?? 0;
+    const used = trade.type !== "expired" && trade.count ? Math.min(trade.count, open) : open;
+    contracts.set(trade.id, used);
+    left.set(trade.closes, open - used);
+    if (open - used <= 0) finishes.add(trade.id);
+  }
+  return { contracts, finishes, left };
+}
 
 /** What is known about a ticker that is not a trade. */
 export type TickerInfo = {
@@ -72,6 +96,7 @@ export function longDate(iso: string) {
 export function positionFor(info: TickerInfo, trades: Trade[]): Position {
   const mine = trades.filter((trade) => trade.ticker === info.ticker).sort((a, b) => a.date.localeCompare(b.date));
   const options = new Map(mine.filter(isOption).map((t) => [t.id, t]));
+  const { contracts, finishes, left } = closings(mine);
   const closed = new Set<string>();
   let premiumUsd = 0;
   let shareCount = 0;
@@ -84,10 +109,10 @@ export function positionFor(info: TickerInfo, trades: Trade[]): Position {
       premiumUsd += trade.premiumUsd;
       continue;
     }
-    closed.add(trade.closes);
+    if (finishes.has(trade.id)) closed.add(trade.closes);
     const option = options.get(trade.closes);
     if (!option || trade.type === "expired") continue;
-    const shares = option.count * SHARES_PER_CONTRACT;
+    const shares = (contracts.get(trade.id) ?? 0) * SHARES_PER_CONTRACT;
     if (trade.type === "assigned") {
       if (shareCount === 0) sharesSince = shortDate(trade.date);
       shareCount += shares;
@@ -105,7 +130,7 @@ export function positionFor(info: TickerInfo, trades: Trade[]): Position {
     .filter((option) => !closed.has(option.id))
     .map((option) => ({
       kind: option.type === "sell-put" ? "put" : "call",
-      count: option.count,
+      count: left.get(option.id) ?? option.count,
       strikeUsd: option.strikeUsd,
       expires: shortDate(option.expires),
       premiumUsd: option.premiumUsd,
@@ -142,6 +167,7 @@ export type TradeAlert = {
  */
 export function alertsFrom(trades: Trade[], fromIso: string): TradeAlert[] {
   const options = new Map(trades.filter(isOption).map((t) => [t.id, t]));
+  const { contracts } = closings(trades);
   // "$17", "$10.50": cents only when there are some, and then always two digits.
   const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
   return trades
@@ -160,7 +186,7 @@ export function alertsFrom(trades: Trade[], fromIso: string): TradeAlert[] {
         };
       }
       const option = options.get(trade.closes);
-      const shares = (option?.count ?? 0) * SHARES_PER_CONTRACT;
+      const shares = (contracts.get(trade.id) ?? 0) * SHARES_PER_CONTRACT;
       const strike = option ? money(option.strikeUsd) : "";
       if (trade.type === "assigned") {
         return { id: trade.id, date, kind: "assigned", headline: `The Harvester was assigned ${shares.toLocaleString("en-US")} ${trade.ticker} shares`, detail: `Bought at ${strike} a share, from the ${strike} puts` };
@@ -200,7 +226,9 @@ export function tradeHistory(tickers: TickerInfo[], trades: Trade[]): TradeResul
   const price = new Map(tickers.map((t) => [t.ticker, t.priceUsd]));
   const sorted = [...trades].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
   const options = new Map(sorted.filter(isOption).map((t) => [t.id, t]));
-  const closedBy = new Map(sorted.filter((t) => !isOption(t)).map((t) => [(t as Exclude<Trade, OptionTrade>).closes, t]));
+  const { contracts, finishes } = closings(sorted);
+  // The trade that finished each option (the last of them, if it was assigned a few contracts at a time).
+  const closedBy = new Map(sorted.filter((t): t is ClosingTrade => finishes.has(t.id)).map((t) => [t.closes, t]));
   // Lots of shares per ticker, oldest first: which put bought them, at what price, and how many were sold since.
   const lots = new Map<string, { putId: string; shares: number; paidUsd: number; soldShares: number; soldUsd: number }[]>();
 
@@ -208,7 +236,7 @@ export function tradeHistory(tickers: TickerInfo[], trades: Trade[]): TradeResul
     if (isOption(trade)) continue;
     const option = options.get(trade.closes);
     if (!option) continue;
-    const shares = option.count * SHARES_PER_CONTRACT;
+    const shares = (contracts.get(trade.id) ?? 0) * SHARES_PER_CONTRACT;
     const list = lots.get(trade.ticker) ?? [];
     if (trade.type === "assigned") {
       list.push({ putId: option.id, shares, paidUsd: option.strikeUsd, soldShares: 0, soldUsd: 0 });
@@ -229,16 +257,19 @@ export function tradeHistory(tickers: TickerInfo[], trades: Trade[]): TradeResul
     .map((option): TradeResult => {
       const closing = closedBy.get(option.id);
       const outcome = !closing ? "open" : closing.type === "assigned" ? "assigned" : closing.type === "called-away" ? "called-away" : "expired";
-      const lot = (lots.get(option.ticker) ?? []).find((l) => l.putId === option.id);
+      // A put assigned a few contracts at a time bought several lots; add them up.
+      const mineLots = (lots.get(option.ticker) ?? []).filter((l) => l.putId === option.id);
       const nowUsd = price.get(option.ticker) ?? 0;
-      const shares = lot
-        ? {
-            count: lot.shares,
-            paidUsd: lot.paidUsd,
-            nowUsd,
-            resultUsd: lot.soldUsd + (lot.shares - lot.soldShares) * nowUsd - lot.shares * lot.paidUsd,
-          }
-        : null;
+      const count = mineLots.reduce((sum, l) => sum + l.shares, 0);
+      const shares =
+        mineLots.length > 0
+          ? {
+              count,
+              paidUsd: option.strikeUsd,
+              nowUsd,
+              resultUsd: mineLots.reduce((sum, l) => sum + l.soldUsd + (l.shares - l.soldShares) * nowUsd - l.shares * l.paidUsd, 0),
+            }
+          : null;
       return {
         id: option.id,
         ticker: option.ticker,
@@ -284,6 +315,7 @@ export function blendedCosts(tickers: TickerInfo[], trades: Trade[]): BlendedCos
   return tickers.map((info) => {
     const mine = trades.filter((t) => t.ticker === info.ticker).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
     const options = new Map(mine.filter(isOption).map((t) => [t.id, t]));
+    const { contracts, finishes } = closings(mine);
     const closed = new Set<string>();
     let count = 0;
     let costUsd = 0;
@@ -291,10 +323,10 @@ export function blendedCosts(tickers: TickerInfo[], trades: Trade[]): BlendedCos
 
     for (const trade of mine) {
       if (isOption(trade)) continue;
-      closed.add(trade.closes);
+      if (finishes.has(trade.id)) closed.add(trade.closes);
       const option = options.get(trade.closes);
       if (!option || trade.type === "expired") continue;
-      const shares = option.count * SHARES_PER_CONTRACT;
+      const shares = (contracts.get(trade.id) ?? 0) * SHARES_PER_CONTRACT;
       if (trade.type === "assigned") {
         count += shares;
         costUsd += shares * option.strikeUsd;
@@ -382,6 +414,8 @@ export function wheelCycles(info: TickerInfo, trades: Trade[], asOfIso: string):
     .filter((t) => t.ticker === info.ticker)
     .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
   const options = new Map(mine.filter(isOption).map((t) => [t.id, t]));
+  const closed = closings(mine);
+  const remaining = new Map([...options.values()].map((o) => [o.id, o.count]));
   const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
   const plural = (n: number, word: string) => `${n.toLocaleString("en-US")} ${word}${n === 1 ? "" : "s"}`;
 
@@ -398,7 +432,7 @@ export function wheelCycles(info: TickerInfo, trades: Trade[], asOfIso: string):
     costUsd +
     [...open].reduce((sum, id) => {
       const o = options.get(id);
-      return o?.type === "sell-put" ? sum + o.count * SHARES_PER_CONTRACT * o.strikeUsd : sum;
+      return o?.type === "sell-put" ? sum + (remaining.get(id) ?? 0) * SHARES_PER_CONTRACT * o.strikeUsd : sum;
     }, 0);
   const finish = (c: WheelCycle, endIso: string) => {
     c.capitalUsd = capitalUsd;
@@ -441,21 +475,24 @@ export function wheelCycles(info: TickerInfo, trades: Trade[], asOfIso: string):
       };
     } else {
       const option = options.get(trade.closes);
-      open.delete(trade.closes);
-      const shares = (option?.count ?? 0) * SHARES_PER_CONTRACT;
+      const used = closed.contracts.get(trade.id) ?? 0;
+      remaining.set(trade.closes, (remaining.get(trade.closes) ?? 0) - used);
+      if (closed.finishes.has(trade.id)) open.delete(trade.closes);
+      const shares = used * SHARES_PER_CONTRACT;
       const strike = option?.strikeUsd ?? 0;
       const label = option ? `${money(strike)} ${option.type === "sell-put" ? "put" : "call"}${option.count === 1 ? "" : "s"}` : "options";
+      const which = option && used < option.count ? `${used} of the ${option.count} ${label}` : `The ${label}`;
       if (trade.type === "assigned") {
         count += shares;
         costUsd += shares * strike;
-        step = { id: trade.id, date: shortDate(trade.date), kind: "assigned", title: `Assigned ${plural(shares, "share")} at ${money(strike)}`, detail: `The ${label} were used`, premiumUsd: null, annualizedPct: null, realizedUsd: null };
+        step = { id: trade.id, date: shortDate(trade.date), kind: "assigned", title: `Assigned ${plural(shares, "share")} at ${money(strike)}`, detail: `${which} ${used === 1 ? "was" : "were"} used`, premiumUsd: null, annualizedPct: null, realizedUsd: null };
       } else if (trade.type === "called-away") {
         const averageUsd = count > 0 ? costUsd / count : 0;
         const realizedUsd = shares * (strike - averageUsd);
         cycle.realizedUsd += realizedUsd;
         costUsd -= shares * averageUsd;
         count -= shares;
-        step = { id: trade.id, date: shortDate(trade.date), kind: "called-away", title: `${plural(shares, "share")} called away at ${money(strike)}`, detail: `The ${label} were used`, premiumUsd: null, annualizedPct: null, realizedUsd };
+        step = { id: trade.id, date: shortDate(trade.date), kind: "called-away", title: `${plural(shares, "share")} called away at ${money(strike)}`, detail: `${which} ${used === 1 ? "was" : "were"} used`, premiumUsd: null, annualizedPct: null, realizedUsd };
       } else {
         step = { id: trade.id, date: shortDate(trade.date), kind: "expired", title: `The ${label} expired unused`, detail: "The whole premium is kept", premiumUsd: null, annualizedPct: null, realizedUsd: null };
       }
