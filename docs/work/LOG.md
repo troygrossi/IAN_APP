@@ -31,6 +31,29 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-20 — Snapshot prices to Oct 20
+
+**Summary:** Snapshot prices updated to Oct 20, 2026, 10:49 AM ET (FMP):
+
+| | Price | 50-day average |
+| --- | --- | --- |
+| MARA | $7.73 | $10.81 |
+| RGTI | $11.93 | $15.64 |
+| IONQ | $31.95 | $40.49 |
+| CIFR | $9.12 | $15.75 |
+
+**Why:** Ian asked for current prices.
+
+**What changed:** Prices, 50-day averages and `SAMPLE_AS_OF` in `src/lib/wheel/sample-data.ts`.
+
+**What was rejected:** none.
+
+**Checked:** `npm run check` passes.
+
+**Docs updated:** this log.
+
+**Handoff:** With `FMP_API_KEY` set in Vercel these refresh by themselves; the snapshot only shows when it is missing.
+
 ## 2026-10-19 — Oct 16 expiry: assignments and expiry recorded; prices to Oct 19
 
 **Summary:** Added the Roth account's trades since Oct 6, from Schwab's confirmations and assignment notices:
