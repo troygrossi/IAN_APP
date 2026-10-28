@@ -31,6 +31,31 @@ Copy this block to the top of the entries and fill it in.
 
 ## Entries
 
+## 2026-10-28 — Snapshot prices to Oct 28 close
+
+**Summary:** Snapshot prices updated to the Oct 28, 2026 close (FMP):
+
+| | Price | 50-day average |
+| --- | --- | --- |
+| MARA | $7.35 | $10.54 |
+| RGTI | $12.40 | $14.84 |
+| IONQ | $32.43 | $38.90 |
+| CIFR | $8.87 | $14.67 |
+
+**Why:** Ian asked for current prices.
+
+**What changed:** Prices, 50-day averages and `SAMPLE_AS_OF` in `src/lib/wheel/sample-data.ts`.
+
+**What was rejected:** none.
+
+**Checked:** `npm run check` passes.
+
+**Docs updated:** this log.
+
+**Handoff:**
+- `FMP_API_KEY` is still not set in Vercel. Ian will add it next week: he needs to sign in to FMP to copy his key.
+- Until then prices only change when this snapshot is updated.
+
 ## 2026-10-20 — Snapshot prices to Oct 20
 
 **Summary:** Snapshot prices updated to Oct 20, 2026, 10:49 AM ET (FMP):

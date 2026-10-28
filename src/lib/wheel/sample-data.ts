@@ -6,9 +6,9 @@
 import { alertsFrom, type TickerInfo, type Trade } from "./ledger";
 
 /** When the snapshot prices were taken. Used when live prices are not available (src/lib/services/prices.ts). */
-export const SAMPLE_AS_OF = "Oct 20, 2026, 10:49 AM ET";
+export const SAMPLE_AS_OF = "Oct 28, 2026, 4:00 PM ET (close)";
 /** The same moment as a date, for working out how many days a cycle has run. */
-export const SAMPLE_AS_OF_ISO = "2026-10-20";
+export const SAMPLE_AS_OF_ISO = "2026-10-28";
 
 /** When the DRIP watchlist statuses were taken. They are refreshed separately from the Core Four prices. */
 export const DRIP_AS_OF = "Oct 5, 2026";
@@ -21,10 +21,10 @@ export const RECORD_START = "2026-10-01";
 export const RECORD_START_LABEL = "Oct 1, 2026";
 
 export const TICKERS: TickerInfo[] = [
-  { ticker: "MARA", name: "Marathon Digital", priceUsd: 7.73, avg50Usd: 10.81, nextEarnings: "Nov 3", next: "All 14 Oct 16 puts were assigned: holding 1,800 shares, no options open yet." },
-  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 11.93, avg50Usd: 15.64, nextEarnings: "Nov 9", next: "Holding 300 shares, no options open yet." },
-  { ticker: "IONQ", name: "IonQ", priceUsd: 31.95, avg50Usd: 40.49, nextEarnings: "Nov 4", next: "The Oct 16 puts were assigned: holding 200 shares, no options open yet." },
-  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 9.12, avg50Usd: 15.75, nextEarnings: "Nov 2", next: "The Oct 16 covered calls expired: holding 1,000 shares, no options open yet." },
+  { ticker: "MARA", name: "Marathon Digital", priceUsd: 7.35, avg50Usd: 10.54, nextEarnings: "Nov 3", next: "All 14 Oct 16 puts were assigned: holding 1,800 shares, no options open yet." },
+  { ticker: "RGTI", name: "Rigetti Computing", priceUsd: 12.40, avg50Usd: 14.84, nextEarnings: "Nov 9", next: "Holding 300 shares, no options open yet." },
+  { ticker: "IONQ", name: "IonQ", priceUsd: 32.43, avg50Usd: 38.90, nextEarnings: "Nov 4", next: "The Oct 16 puts were assigned: holding 200 shares, no options open yet." },
+  { ticker: "CIFR", name: "Cipher Mining", priceUsd: 8.87, avg50Usd: 14.67, nextEarnings: "Nov 2", next: "The Oct 16 covered calls expired: holding 1,000 shares, no options open yet." },
 ];
 
 /** Oldest first. The September trades are the puts still open on Oct 1. */
